@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "475681071444",
+    "project_id": "gebere-44c39",
+    "storage_bucket": "gebere-44c39.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:475681071444:android:03ae4203fe2b900ab3a8c1",
+        "android_client_info": {
+          "package_name": "com.gebre.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDp5RXqJ3_zA8pOEO8M8_krhoZm2ESFZ5c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
