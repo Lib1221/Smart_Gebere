@@ -40,6 +40,8 @@ dependencies:
   cloud_firestore: 
   tbib_splash_screen: ^1.0.0
   animated_text_kit: ^4.2.2
+  firebase_ui_auth: ^1.16.0
+  cached_network_image: ^3.4.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -63,9 +65,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  assets:
-   - assets/
-  #   - images/a_dot_ham.jpeg
+  assets:  
+    - assets/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
