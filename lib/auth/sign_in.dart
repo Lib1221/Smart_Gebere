@@ -24,7 +24,7 @@ class CustomSignInScreen extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 20),
             padding: const EdgeInsets.all(20),
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 400),
+              constraints: const BoxConstraints(maxWidth: 400),
               child: SingleChildScrollView(
                 child: SignInScreen(
                   providers: provider,

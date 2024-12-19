@@ -56,6 +56,7 @@ class Home_Screen extends StatelessWidget {
                       ),
                     ),
                     // Created Tasks Section
+                    
                     const SizedBox(height: 10),
                     Flexible(
                       flex: 1,
@@ -64,13 +65,13 @@ class Home_Screen extends StatelessWidget {
                         padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
                                 color: Colors.teal.shade50,
-                                borderRadius: BorderRadius.circular(10), // Slightly rounded edges
+                                borderRadius: BorderRadius.circular(10), 
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.1), // Shadow color
-                                    offset: const Offset(0, 4), // Horizontal and vertical shadow offset
-                                    blurRadius: 6, // Softness of the shadow
-                                    spreadRadius: 1, // How far the shadow spreads
+                                    color: Colors.black.withOpacity(0.1), 
+                                    offset: const Offset(0, 4), 
+                                    blurRadius: 6, 
+                                    spreadRadius: 1, 
                                   ),
                                 ],
                               ),
@@ -83,20 +84,19 @@ class Home_Screen extends StatelessWidget {
                               ),
                             ),
                                                 ),
-                    // Expected Events Section
                     const SizedBox(height: 10),
                     Flexible(
                       flex: 1,
                       child: Container(
                         decoration: BoxDecoration(
                                 color: Colors.amber.shade50,
-                                borderRadius: BorderRadius.circular(10), // Slightly rounded edges
+                                borderRadius: BorderRadius.circular(10), 
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.1), // Shadow color
-                                    offset: const Offset(0, 4), // Horizontal and vertical shadow offset
-                                    blurRadius: 6, // Softness of the shadow
-                                    spreadRadius: 1, // How far the shadow spreads
+                                    color: Colors.black.withOpacity(0.1), 
+                                    offset: const Offset(0, 4), 
+                                    blurRadius: 6, 
+                                    spreadRadius: 1, 
                                   ),
                                 ],
                               ),

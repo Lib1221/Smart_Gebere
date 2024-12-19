@@ -86,7 +86,6 @@ class _SlideableExpectedEventsState extends State<SlideableExpectedEvents> {
     );
   }
 
-  // Helper to build cards
   Widget _buildCard(String event, String time) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),

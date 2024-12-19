@@ -5,8 +5,10 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   cloud_firestore
   desktop_webview_auth
+  file_selector_windows
   firebase_auth
   firebase_core
+  rive_common
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

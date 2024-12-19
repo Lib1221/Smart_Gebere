@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 
 class SlideableCreatedTasks extends StatefulWidget {
@@ -25,7 +27,7 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
         Expanded(
           child: PageView.builder(
             controller: _pageController,
-            itemCount: (tasks.length / 2).ceil(), // Divide list into pages of 2
+            itemCount: (tasks.length / 2).ceil(), 
             onPageChanged: (index) {
               setState(() {
                 _currentPage = index;
@@ -45,7 +47,7 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
                       tasks[firstTaskIndex]['progress']!,
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   // Second Card (check if exists)
                   if (secondTaskIndex < tasks.length)
                     Expanded(
@@ -59,15 +61,15 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
             },
           ),
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         // Dot Indicators
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
             (tasks.length / 2).ceil(),
             (index) => AnimatedContainer(
-              duration: Duration(milliseconds: 300),
-              margin: EdgeInsets.symmetric(horizontal: 4),
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
               height: 10,
               width: _currentPage == index ? 12 : 8,
               decoration: BoxDecoration(
@@ -86,15 +88,15 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
   // Helper to build cards
   Widget _buildCard(String task, String progress) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-      padding: EdgeInsets.all(12),
+      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.teal.shade100,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
             blurRadius: 6,
             spreadRadius: 1,
           ),
@@ -112,7 +114,7 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
             ),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             progress,
             style: TextStyle(

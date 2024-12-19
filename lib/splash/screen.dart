@@ -1,3 +1,5 @@
+// ignore_for_file: use_super_parameters, camel_case_types
+
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_gebere/auth/authservice.dart';
