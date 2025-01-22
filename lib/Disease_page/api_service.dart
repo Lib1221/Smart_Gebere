@@ -1,20 +1,19 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:smart_gebere/Disease_page/api_constats.dart';
 
+const String BASE_URL = 'https://generativelanguage.googleapis.com/v1beta1';
+const String API_KEY = '';
 
 class ApiService {
   final Dio _dio = Dio();
 
-  /// Encodes an image file to Base64 format
   Future<String> encodeImage(File image) async {
     final bytes = await image.readAsBytes();
     return base64Encode(bytes);
   }
 
-  /// Sends a plant disease name to GPT model and retrieves precautions
-  Future<String> sendMessageGPT({required String diseaseName}) async {
+  Future<String> sendMessageGemini({required String userMessage}) async {
     try {
       final response = await _dio.post(
         "$BASE_URL/chat/completions",
@@ -25,12 +24,11 @@ class ApiService {
           },
         ),
         data: {
-          "model": 'gpt-3.5-turbo',
+          "model": "gemini-chatbot",
           "messages": [
             {
               "role": "user",
-              "content":
-                  "GPT, upon receiving the name of a plant disease, provide three precautionary measures to prevent or manage the disease. These measures should be concise, clear, and limited to one sentence each. No additional information or context is needed—only the three precautions in bullet-point format. The disease is $diseaseName",
+              "content": userMessage,
             }
           ],
         },
@@ -48,11 +46,10 @@ class ApiService {
     }
   }
 
-  /// Sends a plant image to GPT-4 Vision model and retrieves analysis
-  Future<String> sendImageToGPT4Vision({
+  Future<String> analyzeImageGemini({
     required File image,
+    String model = "gemini-vision-preview",
     int maxTokens = 50,
-    String model = "gpt-4-vision-preview",
   }) async {
     final String base64Image = await encodeImage(image);
 
@@ -70,25 +67,14 @@ class ApiService {
           'messages': [
             {
               'role': 'system',
-              'content': 'You have to give concise and short answers'
+              'content': 'Analyze the image and provide a concise diagnosis.'
             },
             {
               'role': 'user',
-              'content': [
-                {
-                  'type': 'text',
-                  'text':
-                      'GPT, your task is to identify plant health issues with precision. Analyze any image of a plant or leaf I provide, and detect all abnormal conditions, whether they are diseases, pests, deficiencies, or decay. Respond strictly with the name of the condition identified, and nothing else—no explanations, no additional text. If a condition is unrecognizable, reply with \'I don\'t know\'. If the image is not plant-related, say \'Please pick another image\'',
-                },
-                {
-                  'type': 'image_url',
-                  'image_url': {
-                    'url': 'data:image/jpeg;base64,$base64Image',
-                  },
-                },
-              ],
-            },
+              'content': 'Please analyze the following plant image for any health issues.',
+            }
           ],
+          'image': 'data:image/jpeg;base64,$base64Image',
           'max_tokens': maxTokens,
         }),
       );

@@ -4,16 +4,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:smart_gebere/Disease_page/api_service.dart';
+import 'api_service.dart';
 
-class Diseasedetection extends StatefulWidget {
-  const Diseasedetection({super.key});
+class DiseaseDetection extends StatefulWidget {
+  const DiseaseDetection({super.key});
 
   @override
-  State<Diseasedetection> createState() => _DiseaseDetectionstate();
+  State<DiseaseDetection> createState() => _DiseaseDetectionState();
 }
 
-class _DiseaseDetectionstate extends State<Diseasedetection> {
+class _DiseaseDetectionState extends State<DiseaseDetection> {
   final apiService = ApiService();
   File? _selectedImage;
   String diseaseName = '';
@@ -21,20 +21,18 @@ class _DiseaseDetectionstate extends State<Diseasedetection> {
   bool detecting = false;
   bool precautionLoading = false;
 
-  /// Picks an image from the specified source (gallery or camera)
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile =
         await ImagePicker().pickImage(source: source, imageQuality: 50);
     if (pickedFile != null) {
       setState(() {
         _selectedImage = File(pickedFile.path);
-        diseaseName = ''; // Reset previous disease results
-        diseasePrecautions = ''; // Reset previous precautions
+        diseaseName = '';
+        diseasePrecautions = '';
       });
     }
   }
 
-  /// Detects the disease from the selected image
   Future<void> detectDisease() async {
     if (_selectedImage == null) {
       _showErrorSnackBar('Please select or capture an image first.');
@@ -46,8 +44,9 @@ class _DiseaseDetectionstate extends State<Diseasedetection> {
     });
 
     try {
-      diseaseName =
-          await apiService.sendImageToGPT4Vision(image: _selectedImage!);
+      diseaseName = await apiService.analyzeImageGemini(image: _selectedImage!);
+      setState(() {});
+      _showSuccessDialog(diseaseName);
     } catch (error) {
       _showErrorSnackBar(error.toString());
     } finally {
@@ -57,7 +56,6 @@ class _DiseaseDetectionstate extends State<Diseasedetection> {
     }
   }
 
-  /// Fetches precautions for the detected disease
   Future<void> showPrecautions() async {
     if (diseaseName.isEmpty) {
       _showErrorSnackBar('Please detect a disease first.');
@@ -71,9 +69,9 @@ class _DiseaseDetectionstate extends State<Diseasedetection> {
     try {
       if (diseasePrecautions.isEmpty) {
         diseasePrecautions =
-            await apiService.sendMessageGPT(diseaseName: diseaseName);
+            await apiService.sendMessageGemini(userMessage: diseaseName);
       }
-      _showSuccessDialog(diseaseName, diseasePrecautions);
+      _showSuccessDialog(diseasePrecautions);
     } catch (error) {
       _showErrorSnackBar(error.toString());
     } finally {
@@ -83,7 +81,6 @@ class _DiseaseDetectionstate extends State<Diseasedetection> {
     }
   }
 
-  /// Displays an error message in a SnackBar
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(message),
@@ -91,13 +88,12 @@ class _DiseaseDetectionstate extends State<Diseasedetection> {
     ));
   }
 
-  /// Displays a success dialog with disease precautions
-  void _showSuccessDialog(String title, String content) {
+  void _showSuccessDialog(String content) {
     AwesomeDialog(
       context: context,
       dialogType: DialogType.success,
       animType: AnimType.rightSlide,
-      title: title,
+      title: diseaseName.isEmpty ? 'Precautions' : 'Detected Disease',
       desc: content,
       btnOkText: 'Got it',
       btnOkColor: Colors.green,
@@ -105,7 +101,6 @@ class _DiseaseDetectionstate extends State<Diseasedetection> {
     ).show();
   }
 
-  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,7 +115,6 @@ class _DiseaseDetectionstate extends State<Diseasedetection> {
           Expanded(
             child: Column(
               children: [
-                // Image Display Section
                 Container(
                   height: MediaQuery.of(context).size.height * 0.35,
                   width: double.infinity,
@@ -145,17 +139,16 @@ class _DiseaseDetectionstate extends State<Diseasedetection> {
                           borderRadius: BorderRadius.circular(15),
                           child: kIsWeb
                               ? Image.network(
-                                  _selectedImage!.path, // Use network for web
+                                  _selectedImage!.path,
                                   fit: BoxFit.cover,
                                 )
                               : Image.file(
-                                  _selectedImage!, // Use Image.file for mobile
+                                  _selectedImage!,
                                   fit: BoxFit.cover,
                                 ),
                         ),
                 ),
                 const SizedBox(height: 10),
-                // Detection Status or Disease Name
                 diseaseName.isNotEmpty
                     ? Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -174,120 +167,120 @@ class _DiseaseDetectionstate extends State<Diseasedetection> {
             ),
           ),
           Padding(
-  padding: const EdgeInsets.all(20.0),
-  child: Column(
-    children: [
-      ElevatedButton(
-        onPressed: () => _pickImage(ImageSource.gallery),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.green.shade500,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 18),
-          elevation: 5, 
-          shadowColor: Colors.green.shade700, 
-        ),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.image, color: Colors.white, size: 20),
-            SizedBox(width: 12),
-            Text(
-              'Open Gallery',
-              style: TextStyle(fontSize: 18, color: Colors.white),
-            ),
-          ],
-        ),
-      ),
-      const SizedBox(height: 12),
-
-      ElevatedButton(
-        onPressed: () => _pickImage(ImageSource.camera),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blue.shade500,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 18),
-          elevation: 5,
-          shadowColor: Colors.blue.shade700,
-        ),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.camera_alt, color: Colors.white, size: 20),
-            SizedBox(width: 12),
-            Text(
-              'Start Camera',
-              style: TextStyle(fontSize: 18, color: Colors.white),
-            ),
-          ],
-        ),
-      ),
-      const SizedBox(height: 12),
-
-      // Disease Detection Button
-      if (detecting)
-        const SpinKitWave(color: Colors.green, size: 30)
-      else
-        ElevatedButton(
-          onPressed: detectDisease,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green.shade600,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 18),
-            elevation: 5,
-            shadowColor: Colors.green.shade800,
-          ),
-          child: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.search, color: Colors.white, size: 20),
-              SizedBox(width: 12),
-              Text(
-                'Detect Disease',
-                style: TextStyle(fontSize: 18, color: Colors.white),
-              ),
-            ],
-          ),
-        ),
-      const SizedBox(height: 12),
-
-      // Show Precautions Button
-      if (diseaseName.isNotEmpty)
-        precautionLoading
-            ? const SpinKitWave(color: Colors.blue, size: 30)
-            : ElevatedButton(
-                onPressed: showPrecautions,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade600,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 18),
-                  elevation: 5,
-                  shadowColor: Colors.blue.shade800,
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.warning, color: Colors.white, size: 20),
-                    SizedBox(width: 12),
-                    Text(
-                      'Show Precautions',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: [
+                ElevatedButton(
+                  onPressed: () => _pickImage(ImageSource.gallery),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green.shade500,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ],
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 25, vertical: 18),
+                    elevation: 5,
+                    shadowColor: Colors.green.shade700,
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.image, color: Colors.white, size: 20),
+                      SizedBox(width: 12),
+                      Text(
+                        'Open Gallery',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-    ],
-  ),
-),
-
-          ],
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: () => _pickImage(ImageSource.camera),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade500,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 25, vertical: 18),
+                    elevation: 5,
+                    shadowColor: Colors.blue.shade700,
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                      SizedBox(width: 12),
+                      Text(
+                        'Start Camera',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                if (detecting)
+                  const SpinKitWave(color: Colors.green, size: 30)
+                else
+                  ElevatedButton(
+                    onPressed: detectDisease,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green.shade600,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 25, vertical: 18),
+                      elevation: 5,
+                      shadowColor: Colors.green.shade800,
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.search, color: Colors.white, size: 20),
+                        SizedBox(width: 12),
+                        Text(
+                          'Detect Disease',
+                          style: TextStyle(fontSize: 18, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                const SizedBox(height: 12),
+                if (diseaseName.isNotEmpty)
+                  precautionLoading
+                      ? const SpinKitWave(color: Colors.blue, size: 30)
+                      : ElevatedButton(
+                          onPressed: showPrecautions,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue.shade600,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 25, vertical: 18),
+                            elevation: 5,
+                            shadowColor: Colors.blue.shade800,
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.warning,
+                                  color: Colors.white, size: 20),
+                              SizedBox(width: 12),
+                              Text(
+                                'Show Precautions',
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
