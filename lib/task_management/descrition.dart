@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:smart_gebere/task_management/list_suggestion.dart';
 
-void main() {
-  runApp(MyApp());
-}
 
 class MyApp extends StatelessWidget {
   @override
@@ -83,10 +81,10 @@ class _AgriculturePageState extends State<AgriculturePage> {
                             ),
                           ]
                         : [
-                            BoxShadow(
+                            const BoxShadow(
                               color: Colors.black26,
                               blurRadius: 10,
-                              offset: const Offset(0, 4),
+                              offset: Offset(0, 4),
                             ),
                           ],
                   ),
@@ -139,7 +137,8 @@ class _AgriculturePageState extends State<AgriculturePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
               onPressed: () {
-                // Add functionality for Continue button
+                Navigator.push(context,MaterialPageRoute(builder: (context) => CropListPage()),
+);
               },
               child: const Text(
                 'Continue',

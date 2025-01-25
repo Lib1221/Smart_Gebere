@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smart_gebere/Disease_page/DiseaseDetection.dart';
+import 'package:smart_gebere/task_management/descrition.dart';
 
 class TaskCreationSection extends StatelessWidget {
   const TaskCreationSection({super.key});
@@ -43,8 +44,6 @@ class TaskCreationSection extends StatelessWidget {
     );
   }
 }
-
-// Task Card
 class TaskCard extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -65,30 +64,37 @@ class TaskCard extends StatelessWidget {
       margin: const EdgeInsets.all(20),
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Container(
-       
-        color: color,
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 40, color: Colors.white),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AgriculturePage()),
+          );
+        },
+        child: Container(
+          color: color,
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 40, color: Colors.white),
+              const SizedBox(height: 8),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-            Text(
-              subtitle,
-              style: const TextStyle(fontSize: 12, color: Colors.white70),
-              textAlign: TextAlign.center,
-            ),
-          ],
+              Text(
+                subtitle,
+                style: const TextStyle(fontSize: 12, color: Colors.white70),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );
