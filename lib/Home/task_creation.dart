@@ -11,25 +11,34 @@ class TaskCreationSection extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
-        
         children: [
           Expanded(
-            child: TaskCard(
-              title: 'Create Task',
-              subtitle: 'Let AI Guide You',
-              icon: Icons.add_circle_outline,
-              color: Colors.deepPurple.shade300,
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AgriculturePage(),
+                  ),
+                );
+              },
+              child: TaskCard(
+                title: 'Create Task',
+                subtitle: 'Let AI Guide You',
+                icon: Icons.add_circle_outline,
+                color: Colors.deepPurple.shade300,
+              ),
             ),
           ),
           Expanded(
             child: InkWell(
               onTap: () {
                 Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const DiseaseDetection(),
-              ),
-            );
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const DiseaseDetection(),
+                  ),
+                );
               },
               child: TaskCard(
                 title: 'Detect & Discover',
@@ -38,12 +47,13 @@ class TaskCreationSection extends StatelessWidget {
                 color: Colors.deepPurple.shade300,
               ),
             ),
-          )
+          ),
         ],
       ),
     );
   }
 }
+
 class TaskCard extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -64,37 +74,29 @@ class TaskCard extends StatelessWidget {
       margin: const EdgeInsets.all(20),
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AgriculturePage()),
-          );
-        },
-        child: Container(
-          color: color,
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 40, color: Colors.white),
-              const SizedBox(height: 8),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-                textAlign: TextAlign.center,
+      child: Container(
+        color: color,
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 40, color: Colors.white),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
-              Text(
-                subtitle,
-                style: const TextStyle(fontSize: 12, color: Colors.white70),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
+              textAlign: TextAlign.center,
+            ),
+            Text(
+              subtitle,
+              style: const TextStyle(fontSize: 12, color: Colors.white70),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );
