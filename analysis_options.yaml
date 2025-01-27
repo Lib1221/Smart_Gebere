@@ -11,6 +11,10 @@ analyzer:
   errors:
     use_key_in_widget_constructors: ignore
     file_names: ignore
+    library_private_types_in_public_api: ignore
+    unused_import: ignore
+    deprecated_member_use: ignore
+    prefer_final_fields: ignore
 include: package:flutter_lints/flutter.yaml
 
 linter:
