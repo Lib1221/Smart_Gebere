@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smart_gebere/geo_Location/location.dart';
 import 'package:smart_gebere/task_management/list_suggestion.dart';
 
 
@@ -137,7 +138,7 @@ class _AgriculturePageState extends State<AgriculturePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
               onPressed: () {
-                Navigator.push(context,MaterialPageRoute(builder: (context) => CropListPage()),
+                Navigator.push(context,MaterialPageRoute(builder: (context) => GeolocationExample()),// CropListPage
 );
               },
               child: const Text(
