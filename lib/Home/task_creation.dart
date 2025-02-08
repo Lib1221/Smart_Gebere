@@ -36,7 +36,7 @@ class TaskCreationSection extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const DiseaseDetection(),
+                    builder: (context) => ImageAnalyzer(),
                   ),
                 );
               },

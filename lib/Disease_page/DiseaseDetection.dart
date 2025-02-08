@@ -1,286 +1,191 @@
-import 'dart:io';
-import 'package:awesome_dialog/awesome_dialog.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:image_picker/image_picker.dart';
-import 'api_service.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:typed_data';
+import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
-class DiseaseDetection extends StatefulWidget {
-  const DiseaseDetection({super.key});
-
-  @override
-  State<DiseaseDetection> createState() => _DiseaseDetectionState();
+void main() {
+  runApp(
+    MaterialApp(
+      title: 'Smart Gebere',
+      home: ImageAnalyzer(),
+    ),
+  );
 }
 
-class _DiseaseDetectionState extends State<DiseaseDetection> {
-  final apiService = ApiService();
-  File? _selectedImage;
-  String diseaseName = '';
-  String diseasePrecautions = '';
-  bool detecting = false;
-  bool precautionLoading = false;
+class ImageAnalyzer extends StatefulWidget {
+  @override
+  State<ImageAnalyzer> createState() => ImageAnalyzerState();
+}
 
-  Future<void> _pickImage(ImageSource source) async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: source, imageQuality: 50);
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-        diseaseName = '';
-        diseasePrecautions = '';
-      });
-    }
+class ImageAnalyzerState extends State<ImageAnalyzer> {
+  Uint8List? _imageBytes;
+  String generatedText = '';
+  late GenerativeModel? _model;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeModel();
   }
 
-  Future<void> detectDisease() async {
-    if (_selectedImage == null) {
-      _showErrorSnackBar('Please select or capture an image first.');
+  void _initializeModel() {
+    const String apiKey = '';
+
+    if (apiKey.isEmpty) {
+      setState(() {
+        generatedText = "API Key is missing. Please set it in the code.";
+      });
       return;
     }
 
-    setState(() {
-      detecting = true;
-    });
-
-    try {
-      diseaseName = await apiService.analyzeImageGemini(image: _selectedImage!);
-      setState(() {});
-      _showSuccessDialog(diseaseName);
-    } catch (error) {
-      _showErrorSnackBar(error.toString());
-    } finally {
-      setState(() {
-        detecting = false;
-      });
-    }
+    _model = GenerativeModel(
+      model: 'gemini-1.5-flash-latest',
+      apiKey: apiKey,
+      safetySettings: [
+        SafetySetting(HarmCategory.harassment, HarmBlockThreshold.high),
+        SafetySetting(HarmCategory.hateSpeech, HarmBlockThreshold.high),
+      ],
+    );
   }
 
-  Future<void> showPrecautions() async {
-    if (diseaseName.isEmpty) {
-      _showErrorSnackBar('Please detect a disease first.');
-      return;
-    }
-
-    setState(() {
-      precautionLoading = true;
-    });
-
+  void _pickFiles() async {
     try {
-      if (diseasePrecautions.isEmpty) {
-        diseasePrecautions =
-            await apiService.sendMessageGemini(userMessage: diseaseName);
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowMultiple: false,
+        allowedExtensions: ['jpg', 'jpeg', 'png'],
+      );
+
+      if (result != null) {
+        PlatformFile file = result.files.first;
+
+        setState(() {
+          _imageBytes = file.bytes;
+        });
       }
-      _showSuccessDialog(diseasePrecautions);
-    } catch (error) {
-      _showErrorSnackBar(error.toString());
-    } finally {
+    } catch (e) {
       setState(() {
-        precautionLoading = false;
+        generatedText = "Error selecting file: $e";
       });
     }
   }
 
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-      backgroundColor: Colors.red,
-    ));
+  void _generateDiseaseInfo() async {
+    if (_imageBytes == null) {
+      setState(() {
+        generatedText = "Please select an image first.";
+      });
+      return;
+    }
+
+    if (_model == null) {
+      setState(() {
+        generatedText = "Model is not initialized. Check your API key.";
+      });
+      return;
+    }
+
+    String prompt = """
+      Analyze the provided plant leaf image and provide the following details:
+      
+      **Disease Name:** 
+      **Local Name:** (Amharic and Afan Oromo)
+      **Symptoms:** 
+      **Possible Causes:** 
+      **Precautions:** 
+      **Treatment Options:** 
+      
+      If the image quality is poor or no disease is detected, indicate that clearly.
+    """;
+
+    final content = [
+      Content.multi([
+        TextPart(prompt),
+        DataPart('image/jpeg', _imageBytes!),
+      ]),
+    ];
+
+    try {
+      final response = await _model!.generateContent(content);
+      setState(() {
+        generatedText = response.text ?? "No response generated.";
+      });
+      _showBottomSheet();
+    } catch (e) {
+      setState(() {
+        generatedText = "Failed to generate response: $e";
+      });
+    }
   }
 
-  void _showSuccessDialog(String content) {
-    AwesomeDialog(
+  void _showBottomSheet() {
+    showModalBottomSheet(
       context: context,
-      dialogType: DialogType.success,
-      animType: AnimType.rightSlide,
-      title: diseaseName.isEmpty ? 'Precautions' : 'Detected Disease',
-      desc: content,
-      btnOkText: 'Got it',
-      btnOkColor: Colors.green,
-      btnOkOnPress: () {},
-    ).show();
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Markdown(
+            data: generatedText,
+            styleSheet: MarkdownStyleSheet(
+              h1: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+              p: const TextStyle(fontSize: 16.0),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Disease Detection"),
-        centerTitle: true,
-        backgroundColor: Colors.green.shade400,
+        title: const Text('Smart Gebere'),
+        backgroundColor: Colors.teal,
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 20),
-          Expanded(
-            child: Column(
-              children: [
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.35,
-                  width: double.infinity,
-                  margin: const EdgeInsets.all(15.0),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(color: Colors.grey.shade300),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            if (_imageBytes != null)
+              Container(
+                height: 200,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12.0),
+                  image: DecorationImage(
+                    image: MemoryImage(_imageBytes!),
+                    fit: BoxFit.cover,
                   ),
-                  child: _selectedImage == null
-                      ? Center(
-                          child: Text(
-                            'No image selected',
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        )
-                      : ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: kIsWeb
-                              ? Image.network(
-                                  _selectedImage!.path,
-                                  fit: BoxFit.cover,
-                                )
-                              : Image.file(
-                                  _selectedImage!,
-                                  fit: BoxFit.cover,
-                                ),
-                        ),
                 ),
-                const SizedBox(height: 10),
-                diseaseName.isNotEmpty
-                    ? Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                        child: Text(
-                          'Detected Disease: $diseaseName',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      )
-                    : Container(),
-              ],
+              ),
+            const SizedBox(height: 16.0),
+            ElevatedButton.icon(
+              onPressed: _pickFiles,
+              icon: const Icon(Icons.image),
+              label: const Text('Select or Capture Image'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.all(16.0),
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              children: [
-                ElevatedButton(
-                  onPressed: () => _pickImage(ImageSource.gallery),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green.shade500,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 25, vertical: 18),
-                    elevation: 5,
-                    shadowColor: Colors.green.shade700,
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.image, color: Colors.white, size: 20),
-                      SizedBox(width: 12),
-                      Text(
-                        'Open Gallery',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  onPressed: () => _pickImage(ImageSource.camera),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue.shade500,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 25, vertical: 18),
-                    elevation: 5,
-                    shadowColor: Colors.blue.shade700,
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.camera_alt, color: Colors.white, size: 20),
-                      SizedBox(width: 12),
-                      Text(
-                        'Start Camera',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                if (detecting)
-                  const SpinKitWave(color: Colors.green, size: 30)
-                else
-                  ElevatedButton(
-                    onPressed: detectDisease,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green.shade600,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 25, vertical: 18),
-                      elevation: 5,
-                      shadowColor: Colors.green.shade800,
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.search, color: Colors.white, size: 20),
-                        SizedBox(width: 12),
-                        Text(
-                          'Detect Disease',
-                          style: TextStyle(fontSize: 18, color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ),
-                const SizedBox(height: 12),
-                if (diseaseName.isNotEmpty)
-                  precautionLoading
-                      ? const SpinKitWave(color: Colors.blue, size: 30)
-                      : ElevatedButton(
-                          onPressed: showPrecautions,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue.shade600,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 25, vertical: 18),
-                            elevation: 5,
-                            shadowColor: Colors.blue.shade800,
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.warning,
-                                  color: Colors.white, size: 20),
-                              SizedBox(width: 12),
-                              Text(
-                                'Show Precautions',
-                                style: TextStyle(
-                                    fontSize: 18, color: Colors.white),
-                              ),
-                            ],
-                          ),
-                        ),
-              ],
+            const SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: _generateDiseaseInfo,
+              child: const Text('Detect Disease'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.all(16.0),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

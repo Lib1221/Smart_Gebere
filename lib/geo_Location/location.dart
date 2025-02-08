@@ -63,17 +63,17 @@ class _GeolocationExampleState extends State<GeolocationExample> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Geolocation Example'),
+        title: const Text('Geolocation Example'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(_locationMessage),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _getCurrentLocation,
-              child: Text('Get Location'),
+              child: const Text('Get Location'),
             ),
           ],
         ),

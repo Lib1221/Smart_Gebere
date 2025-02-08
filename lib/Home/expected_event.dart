@@ -19,6 +19,10 @@ class _SlideableExpectedEventsState extends State<SlideableExpectedEvents> {
     {'event': 'Event 4', 'time': '04:00 PM'},
     {'event': 'Event 5', 'time': '06:00 PM'},
     {'event': 'Event 6', 'time': '08:00 PM'},
+    {'event': 'Adugna', 'time': '06:00 PM'},
+    {'event': 'Liben', 'time': '08:00 PM'},
+    
+    
   ];
 
   @override

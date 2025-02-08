@@ -52,7 +52,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDp5RXqJ3_zA8pOEO8M8_krhoZm2ESFZ5c',
-    appId: '1:475681071444:android:03ae4203fe2b900ab3a8c1',
+    appId: '1:475681071444:android:0ce2b8c5d555cb60b3a8c1',
     messagingSenderId: '475681071444',
     projectId: 'gebere-44c39',
     storageBucket: 'gebere-44c39.firebasestorage.app',
@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'gebere-44c39.firebasestorage.app',
     measurementId: 'G-5F0H9GG5KS',
   );
+
 }
