@@ -7,6 +7,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:475681071444:android:0ce2b8c5d555cb60b3a8c1",
+        "android_client_info": {
+          "package_name": "com.example.smart_gebere"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDp5RXqJ3_zA8pOEO8M8_krhoZm2ESFZ5c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:475681071444:android:03ae4203fe2b900ab3a8c1",
         "android_client_info": {
           "package_name": "com.gebre.app"
