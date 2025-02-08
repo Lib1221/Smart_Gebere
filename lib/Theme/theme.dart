@@ -5,7 +5,7 @@ ThemeData buildTheme() {
     primaryColor: const Color.fromARGB(255, 39, 123, 43), 
     scaffoldBackgroundColor: Colors.green[50], 
     appBarTheme: const AppBarTheme(
-      backgroundColor: Color.fromARGB(255, 92, 240, 100), 
+      backgroundColor: Color.fromARGB(255, 139, 192, 142), 
       titleTextStyle: TextStyle(
         color: Colors.white,
         fontSize: 22,

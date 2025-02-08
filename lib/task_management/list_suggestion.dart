@@ -19,6 +19,51 @@ class CropListPage extends StatelessWidget {
       'details':
           'Corn requires abundant sunlight and well-drained soil with high nitrogen content. Best suited for warm climates.',
     },
+
+    {
+      'image': 'assets/image_1.jpg',
+      'name': 'Corn',
+      'description': 'High yield potential in sunny areas.',
+      'suitability': 50,
+      'details':
+          'Corn requires abundant sunlight and well-drained soil with high nitrogen content. Best suited for warm climates.',
+    },
+
+    {
+      'image': 'assets/image_1.jpg',
+      'name': 'Corn',
+      'description': 'High yield potential in sunny areas.',
+      'suitability': 50,
+      'details':
+          'Corn requires abundant sunlight and well-drained soil with high nitrogen content. Best suited for warm climates.',
+    },
+
+    {
+      'image': 'assets/image_1.jpg',
+      'name': 'Corn',
+      'description': 'High yield potential in sunny areas.',
+      'suitability': 50,
+      'details':
+          'Corn requires abundant sunlight and well-drained soil with high nitrogen content. Best suited for warm climates.',
+    },
+
+    {
+      'image': 'assets/image_1.jpg',
+      'name': 'Corn',
+      'description': 'High yield potential in sunny areas.',
+      'suitability': 50,
+      'details':
+          'Corn requires abundant sunlight and well-drained soil with high nitrogen content. Best suited for warm climates.',
+    },
+
+    {
+      'image': 'assets/image_1.jpg',
+      'name': 'Corn',
+      'description': 'High yield potential in sunny areas.',
+      'suitability': 50,
+      'details':
+          'Corn requires abundant sunlight and well-drained soil with high nitrogen content. Best suited for warm climates.',
+    },
    
   ];
 

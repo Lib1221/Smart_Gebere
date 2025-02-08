@@ -138,7 +138,7 @@ class _AgriculturePageState extends State<AgriculturePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               ),
               onPressed: () {
-                Navigator.push(context,MaterialPageRoute(builder: (context) => GeolocationExample()),// CropListPage
+                Navigator.push(context,MaterialPageRoute(builder: (context) => CropListPage()),// CropListPage
 );
               },
               child: const Text(
