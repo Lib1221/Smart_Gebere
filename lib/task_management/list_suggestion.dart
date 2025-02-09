@@ -72,23 +72,23 @@ class CropListPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Crop Suitability List',
+          'Agriculture Innovation',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 24,
+            fontSize: 22,
           ),
         ),
         centerTitle: true,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.teal, Colors.greenAccent],
+              colors: [Colors.green, Colors.lightGreen],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
           ),
         ),
-        elevation: 8,
+        elevation: 5,
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(8.0),
