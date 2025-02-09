@@ -1,17 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:typed_data';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
-void main() {
-  runApp(
-    MaterialApp(
-      title: 'Smart Gebere',
-      home: ImageAnalyzer(),
-    ),
-  );
-}
 
 class ImageAnalyzer extends StatefulWidget {
   @override
@@ -30,7 +23,7 @@ class ImageAnalyzerState extends State<ImageAnalyzer> {
   }
 
   void _initializeModel() {
-    const String apiKey = '';
+    String apiKey = dotenv.env['API_KEY'] ?? 'No API Key Found';
 
     if (apiKey.isEmpty) {
       setState(() {
@@ -144,8 +137,24 @@ class ImageAnalyzerState extends State<ImageAnalyzer> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Smart Gebere'),
-        backgroundColor: Colors.teal,
+        title: const Text(
+          'Disease Detection',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+          ),
+        ),
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.green, Colors.lightGreen],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        elevation: 5,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -177,12 +186,12 @@ class ImageAnalyzerState extends State<ImageAnalyzer> {
             const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: _generateDiseaseInfo,
-              child: const Text('Detect Disease'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.teal,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.all(16.0),
               ),
+              child: const Text('Detect Disease'),
             ),
           ],
         ),

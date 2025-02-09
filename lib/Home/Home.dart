@@ -11,6 +11,26 @@ class Home_Screen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Agriculture Innovation',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+          ),
+        ),
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.green, Colors.lightGreen],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        elevation: 5,
+      ),
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -24,18 +44,6 @@ class Home_Screen extends StatelessWidget {
         child: SafeArea(
           child: Column(
             children: [
-              // AppBar
-              AppBar(
-                title: const Text('Home'),
-                backgroundColor: Colors.deepPurple,
-                centerTitle: true,
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.account_circle),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
               // Body
               Expanded(
                 child: Column(
