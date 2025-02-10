@@ -13,12 +13,10 @@ class LoadingPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Animated logo or icon
               AnimatedLogo(),
 
               const SizedBox(height: 30),
 
-              // Informative text about the loading state
               const Text(
                 'We are processing your request...',
                 style: TextStyle(
@@ -30,7 +28,6 @@ class LoadingPage extends StatelessWidget {
 
               const SizedBox(height: 30),
 
-              // Circular loading indicator with custom design
               const CircularProgressIndicator(
                 strokeWidth: 6,
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
@@ -55,18 +52,15 @@ class _AnimatedLogoState extends State<AnimatedLogo> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    // Initialize animation controller
     _controller = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
     );
 
-    // Create scaling animation for logo
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
-    // Start the animation
     _controller.repeat(reverse: true);
   }
 

@@ -2,19 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:smart_gebere/geo_Location/location.dart';
 import 'package:smart_gebere/task_management/list_suggestion.dart';
 
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        fontFamily: 'Roboto',
-      ),
-      home: AgriculturePage(),
-    );
-  }
-}
-
 class AgriculturePage extends StatefulWidget {
   @override
   _AgriculturePageState createState() => _AgriculturePageState();
