@@ -1,114 +1,86 @@
-
 import 'package:flutter/material.dart';
+import 'package:smart_gebere/Loading/fetch_loading.dart';
+import 'package:smart_gebere/geo_Location/location.dart';
 
-class CropListPage extends StatelessWidget {
-  final List<Map<String, dynamic>> crops = [
-    {
-      'image': 'assets/image_1.jpg', // Replace with your image paths
-      'name': 'Wheat',
-      'description': 'Ideal for regions with moderate climate.',
-      'suitability': 85,
-      'details':
-          'Wheat thrives in areas with a temperature range of 10°C to 25°C and requires well-drained, fertile soil for optimal growth.',
-    },
-    {
-      'image': 'assets/image_1.jpg',
-      'name': 'Corn',
-      'description': 'High yield potential in sunny areas.',
-      'suitability': 50,
-      'details':
-          'Corn requires abundant sunlight and well-drained soil with high nitrogen content. Best suited for warm climates.',
-    },
+class CropListPage extends StatefulWidget {
+  @override
+  _CropListPageState createState() => _CropListPageState();
+}
 
-    {
-      'image': 'assets/image_1.jpg',
-      'name': 'Corn',
-      'description': 'High yield potential in sunny areas.',
-      'suitability': 50,
-      'details':
-          'Corn requires abundant sunlight and well-drained soil with high nitrogen content. Best suited for warm climates.',
-    },
+class _CropListPageState extends State<CropListPage> {
+  final LocationService locationService = LocationService();
+  List<Map<String, dynamic>> crops = [];
+  bool isLoading = false;
 
-    {
-      'image': 'assets/image_1.jpg',
-      'name': 'Corn',
-      'description': 'High yield potential in sunny areas.',
-      'suitability': 50,
-      'details':
-          'Corn requires abundant sunlight and well-drained soil with high nitrogen content. Best suited for warm climates.',
-    },
+  Future<void> fetchCropSuggestions() async {
+    if (!mounted) return; // Prevent any updates if the widget is disposed
 
-    {
-      'image': 'assets/image_1.jpg',
-      'name': 'Corn',
-      'description': 'High yield potential in sunny areas.',
-      'suitability': 50,
-      'details':
-          'Corn requires abundant sunlight and well-drained soil with high nitrogen content. Best suited for warm climates.',
-    },
+    setState(() => isLoading = true);
 
-    {
-      'image': 'assets/image_1.jpg',
-      'name': 'Corn',
-      'description': 'High yield potential in sunny areas.',
-      'suitability': 50,
-      'details':
-          'Corn requires abundant sunlight and well-drained soil with high nitrogen content. Best suited for warm climates.',
-    },
+    try {
+      locationService.initializeModel();
+      Map<String, dynamic> locationData = await locationService.getCurrentLocation();
+      List<Map<String, dynamic>> suggestions = await locationService.generateCropSuggestions(locationData);
 
-    {
-      'image': 'assets/image_1.jpg',
-      'name': 'Corn',
-      'description': 'High yield potential in sunny areas.',
-      'suitability': 50,
-      'details':
-          'Corn requires abundant sunlight and well-drained soil with high nitrogen content. Best suited for warm climates.',
-    },
-   
-  ];
+      if (mounted) {
+        setState(() {
+          crops = suggestions;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          crops = []; // Handle the error accordingly
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCropSuggestions();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Agriculture Innovation',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-          ),
-        ),
-        centerTitle: true,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.green, Colors.lightGreen],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+    return isLoading
+        ? LoadingPage() // Show Loading Page while data is loading
+        : Scaffold(
+            appBar: AppBar(
+              title: const Text(
+                'Agriculture Innovation',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+              ),
+              centerTitle: true,
+              backgroundColor: Colors.green,
+              elevation: 5,
             ),
-          ),
-        ),
-        elevation: 5,
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(8.0),
-        itemCount: crops.length,
-        itemBuilder: (context, index) {
-          return CropCard(
-            image: crops[index]['image'],
-            name: crops[index]['name'],
-            description: crops[index]['description'],
-            suitability: crops[index]['suitability'],
-            details: crops[index]['details'],
+            body: crops.isEmpty
+                ? const Center(child: Text("No crop data available."))
+                : ListView.builder(
+                    padding: const EdgeInsets.all(8.0),
+                    itemCount: crops.length,
+                    itemBuilder: (context, index) {
+                      return CropCard(
+                        name: crops[index]['name'],
+                        description: crops[index]['description'],
+                        suitability: crops[index]['suitability'],
+                        details: crops[index]['details'],
+                      );
+                    },
+                  ),
           );
-        },
-      ),
-    );
   }
 }
 
+
+
 class CropCard extends StatefulWidget {
-  final String image;
   final String name;
   final String description;
   final int suitability;
@@ -116,7 +88,6 @@ class CropCard extends StatefulWidget {
 
   const CropCard({
     super.key,
-    required this.image,
     required this.name,
     required this.description,
     required this.suitability,
@@ -135,41 +106,52 @@ class _CropCardState extends State<CropCard> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      padding: const EdgeInsets.all(8.0),
+      margin: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+      padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: Offset(0, 4),
-          ),
+          BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))
         ],
-        gradient: const LinearGradient(
-          colors: [Colors.white, Colors.lightGreenAccent],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Colors.white,
+        border: Border.all(color: Colors.green.shade400, width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-         
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.asset(
-                  widget.image,
-                  height: 80,
-                  width: 80,
-                  fit: BoxFit.cover,
+              // Circular Suitability Indicator
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [Colors.green.shade700, Colors.green.shade300],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 6,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Text(
+                    '${widget.suitability}%',
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
-              // Crop details on the right
+              // Crop details
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,69 +159,68 @@ class _CropCardState extends State<CropCard> {
                     Text(
                       widget.name,
                       style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Text(
                       widget.description,
                       style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black54,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    // Linear Progress Indicator
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Suitability: ${widget.suitability}%',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        LinearProgressIndicator(
-                          value: widget.suitability / 100,
-                          color: Colors.green,
-                          backgroundColor: Colors.green.shade100,
-                          minHeight: 8,
-                        ),
-                      ],
+                          fontSize: 14, color: Colors.black54),
                     ),
                   ],
                 ),
               ),
               // Expand/Collapse Button
-              Align(
-                alignment: Alignment.bottomRight,
-                child: IconButton(
-                  icon: Icon(
-                    _isExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-                    color: Colors.green,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isExpanded = !_isExpanded;
-                    });
-                  },
+              IconButton(
+                icon: Icon(
+                  _isExpanded ? Icons.expand_less : Icons.expand_more,
+                  color: Colors.green,
+                  size: 28,
                 ),
+                onPressed: () {
+                  setState(() {
+                    _isExpanded = !_isExpanded;
+                  });
+                },
               ),
             ],
           ),
           if (_isExpanded)
             Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Text(
-                widget.details,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black87,
-                ),
+              padding: const EdgeInsets.only(top: 10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.details,
+                    style: const TextStyle(fontSize: 14, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 8),
+                  // Added button below detailed description
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.green,
+                        side: BorderSide(color: Colors.green.shade400, width: 2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        elevation: 3,
+                      ),
+                      onPressed: () {},
+                      child: const Text(
+                        "Plantify",
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
         ],
