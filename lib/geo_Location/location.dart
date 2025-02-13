@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class LocationService {
+  GenerativeModel? _model;
+
   Future<Map<String, dynamic>> getCurrentLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -28,9 +31,8 @@ class LocationService {
 
     double latitude = position.latitude;
     double longitude = position.longitude;
-    
-    double elevation = await getElevation(latitude, longitude);
 
+    double elevation = await getElevation(latitude, longitude);
     Map<String, dynamic> weather = await getWeather(latitude, longitude);
 
     return {
@@ -78,6 +80,98 @@ class LocationService {
       };
     } else {
       throw Exception("Failed to fetch weather data.");
+    }
+  }
+
+  void initializeModel() {
+    String apiKey = dotenv.env['API_KEY'] ?? '';
+
+    if (apiKey.isEmpty) {
+      throw Exception("API Key is missing. Please set it in the .env file.");
+    }
+
+    _model = GenerativeModel(
+      model: 'gemini-1.5-flash-latest',
+      apiKey: apiKey,
+      safetySettings: [
+        SafetySetting(HarmCategory.harassment, HarmBlockThreshold.high),
+        SafetySetting(HarmCategory.hateSpeech, HarmBlockThreshold.high),
+      ],
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> generateCropSuggestions(Map<String, dynamic> locationData) async {
+    if (_model == null) {
+      throw Exception("Model is not initialized. Check your API key.");
+    }
+
+    Map<String, dynamic> locationData = await getCurrentLocation();
+
+      String prompt = """
+Based on the following location data, provide a **detailed** and **well-researched** list of the most suitable crops for cultivation in this area. 
+
+### **Location Data:**
+- **Location:** Adama, Oromia, Ethiopia
+- **Latitude:** ${locationData['latitude']}
+- **Longitude:** ${locationData['longitude']}
+- **Elevation:** ${locationData['elevation']} meters
+- **Current Temperature:** ${locationData['weather']['temperature']}°C
+- **Current Weather:** ${locationData['weather']['weather']}
+
+### **Analysis Criteria:**
+For each crop, analyze its suitability based on the **climate, soil conditions, temperature tolerance, precipitation needs, and elevation factors**. The response should be **scientifically accurate** and consider agricultural best practices.
+
+### **Output Format:**
+Return a **list of dictionaries**, where each dictionary contains the following fields:
+
+- **name:** The name of the crop.
+- **description:** A short, informative description of the crop's main characteristics.
+- **suitability:** A **percentage score (0-100)** indicating how well this crop can thrive in the given conditions.
+- **details:** A detailed explanation covering:
+  - **Climate Suitability:** Why the climate and temperature range are ideal.
+  - **Soil Requirements:** The type of soil needed and whether the local soil supports it.
+  - **Water Needs:** How rainfall or irrigation availability aligns with this crop’s water needs.
+  - **Elevation Factor:** How the altitude affects its growth.
+  - **Seasonal Growth Pattern:** The best season(s) for planting in this location.
+
+### **Example Output:**
+[
+  {
+    "name": "Corn",
+    "description": "A high-yield cereal crop requiring full sunlight and well-drained soil.",
+    "suitability": 85,
+    "details": "Corn is well-suited to Adama's warm climate, as it requires temperatures between 20-30°C for optimal growth. The region’s elevation (2320m) provides cooler nights, which can enhance kernel development. Corn thrives in sandy loam soil with high nitrogen content, which is commonly found in Ethiopian farmlands. It has moderate water needs, making it ideal for areas with seasonal rainfall or irrigation access."
+  },
+  {
+    "name": "Wheat",
+    "description": "A staple grain with moderate water needs, suited for high-altitude regions.",
+    "suitability": 90,
+    "details": "Wheat is an excellent choice for Adama due to its ability to grow in cooler temperatures (15-25°C). The high elevation improves grain quality, preventing excessive heat stress. It requires well-drained loamy soil with good organic matter content. Wheat is best grown during the dry season with controlled irrigation."
+  }
+]
+
+**Output:**
+don't make it markdown text
+
+Return the list of dictionaries only. Do not include any additional text or information before or after the list.
+""";
+
+
+
+    final content = [Content.multi([TextPart(prompt)])];
+
+    try {
+      final response = await _model!.generateContent(content);
+      String? responseText = response.text;
+
+      if (responseText == null || responseText.isEmpty) {
+        throw Exception("No response generated.");
+      }
+
+      List<Map<String, dynamic>> cropList = List<Map<String, dynamic>>.from(jsonDecode(responseText));
+      return cropList;
+    } catch (e) {
+      throw Exception("Failed to generate response: $e");
     }
   }
 }
