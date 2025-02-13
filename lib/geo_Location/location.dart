@@ -1,83 +1,83 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-class GeolocationExample extends StatefulWidget {
-  @override
-  _GeolocationExampleState createState() => _GeolocationExampleState();
-}
-
-class _GeolocationExampleState extends State<GeolocationExample> {
-  String _locationMessage = "Location not determined";
-
-  @override
-  void initState() {
-    super.initState();
-    _checkLocationPermission();
-  }
-
-  Future<void> _checkLocationPermission() async {
+class LocationService {
+  Future<Map<String, dynamic>> getCurrentLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
 
-    // Check if location services are enabled
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      setState(() {
-        _locationMessage = "Location services are disabled.";
-      });
-      return;
+      throw Exception("Location services are disabled.");
     }
 
-    // Check for permissions
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        setState(() {
-          _locationMessage = "Location permissions are denied.";
-        });
-        return;
+      if (permission == LocationPermission.deniedForever) {
+        throw Exception("Location permissions are permanently denied.");
+      } else if (permission == LocationPermission.denied) {
+        throw Exception("Location permissions are denied.");
       }
     }
 
-    if (permission == LocationPermission.deniedForever) {
-      setState(() {
-        _locationMessage = "Location permissions are permanently denied.";
-      });
-      return;
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+
+    double latitude = position.latitude;
+    double longitude = position.longitude;
+    
+    double elevation = await getElevation(latitude, longitude);
+
+    Map<String, dynamic> weather = await getWeather(latitude, longitude);
+
+    return {
+      "latitude": latitude,
+      "longitude": longitude,
+      "elevation": elevation,
+      "weather": weather,
+    };
+  }
+
+  Future<double> getElevation(double lat, double lon) async {
+    final elevationUrl = Uri.parse('https://api.open-elevation.com/api/v1/lookup');
+    final response = await http.post(
+      elevationUrl,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({"locations": [{"latitude": lat, "longitude": lon}]}),
+    );
+
+    if (response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body);
+      return jsonResponse['results'][0]['elevation'] ?? 0.0;
+    } else {
+      throw Exception("Failed to fetch elevation data.");
+    }
+  }
+
+  Future<Map<String, dynamic>> getWeather(double lat, double lon) async {
+    String apiKey = dotenv.env['OPENWEATHER_API_KEY'] ?? '';
+
+    if (apiKey.isEmpty) {
+      throw Exception("Missing OpenWeather API Key.");
     }
 
-    _getCurrentLocation();
-  }
+    final weatherUrl = Uri.parse(
+        'https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$apiKey&units=metric');
 
-  Future<void> _getCurrentLocation() async {
-    final position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-    setState(() {
-      _locationMessage = "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
-    });
-  }
+    final response = await http.get(weatherUrl);
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Geolocation Example'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(_locationMessage),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _getCurrentLocation,
-              child: const Text('Get Location'),
-            ),
-          ],
-        ),
-      ),
-    );
+    if (response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body);
+      return {
+        "temperature": jsonResponse['main']['temp'],
+        "humidity": jsonResponse['main']['humidity'],
+        "weather": jsonResponse['weather'][0]['description'],
+      };
+    } else {
+      throw Exception("Failed to fetch weather data.");
+    }
   }
 }
