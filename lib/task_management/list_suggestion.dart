@@ -15,14 +15,16 @@ class _CropListPageState extends State<CropListPage> {
   bool isLoading = false;
 
   Future<void> fetchCropSuggestions() async {
-    if (!mounted) return; // Prevent any updates if the widget is disposed
+    if (!mounted) return; 
 
     setState(() => isLoading = true);
 
     try {
       locationService.initializeModel();
-      Map<String, dynamic> locationData = await locationService.getCurrentLocation();
-      List<Map<String, dynamic>> suggestions = await locationService.generateCropSuggestions(locationData);
+      Map<String, dynamic> locationData =
+          await locationService.getCurrentLocation();
+      List<Map<String, dynamic>> suggestions =
+          await locationService.generateCropSuggestions(locationData);
 
       if (mounted) {
         setState(() {
@@ -32,7 +34,7 @@ class _CropListPageState extends State<CropListPage> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          crops = []; // Handle the error accordingly
+          crops = [];
         });
       }
     } finally {
@@ -51,7 +53,7 @@ class _CropListPageState extends State<CropListPage> {
   @override
   Widget build(BuildContext context) {
     return isLoading
-        ? LoadingPage() // Show Loading Page while data is loading
+        ? LoadingPage() 
         : Scaffold(
             appBar: AppBar(
               title: const Text(
@@ -72,7 +74,8 @@ class _CropListPageState extends State<CropListPage> {
                         name: crops[index]['name'],
                         description: crops[index]['description'],
                         suitability: crops[index]['suitability'],
-                        details: crops[index]['details'],
+                        details: crops[index]['details'], 
+                        crop: crops[index]['name'],
                       );
                     },
                   ),
@@ -80,13 +83,12 @@ class _CropListPageState extends State<CropListPage> {
   }
 }
 
-
-
 class CropCard extends StatefulWidget {
   final String name;
   final String description;
   final int suitability;
   final String details;
+  final String crop;
 
   const CropCard({
     super.key,
@@ -94,6 +96,7 @@ class CropCard extends StatefulWidget {
     required this.description,
     required this.suitability,
     required this.details,
+     required this.crop,
   });
 
   @override
@@ -123,7 +126,6 @@ class _CropCardState extends State<CropCard> {
         children: [
           Row(
             children: [
-              // Circular Suitability Indicator
               Container(
                 width: 60,
                 height: 60,
@@ -153,7 +155,6 @@ class _CropCardState extends State<CropCard> {
                 ),
               ),
               const SizedBox(width: 12),
-              // Crop details
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,13 +169,12 @@ class _CropCardState extends State<CropCard> {
                     const SizedBox(height: 6),
                     Text(
                       widget.description,
-                      style: const TextStyle(
-                          fontSize: 14, color: Colors.black54),
+                      style:
+                          const TextStyle(fontSize: 14, color: Colors.black54),
                     ),
                   ],
                 ),
               ),
-              // Expand/Collapse Button
               IconButton(
                 icon: Icon(
                   _isExpanded ? Icons.expand_less : Icons.expand_more,
@@ -200,14 +200,14 @@ class _CropCardState extends State<CropCard> {
                     style: const TextStyle(fontSize: 14, color: Colors.black87),
                   ),
                   const SizedBox(height: 8),
-                  // Added button below detailed description
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: Colors.green,
-                        side: BorderSide(color: Colors.green.shade400, width: 2),
+                        side:
+                            BorderSide(color: Colors.green.shade400, width: 2),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18),
                         ),
@@ -217,11 +217,14 @@ class _CropCardState extends State<CropCard> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => CropPlantingScreen(crop: 'corn',)),
+                          MaterialPageRoute(
+                              builder: (context) => CropPlantingScreen(
+                                    crop: widget.crop,
+                                  )),
                         );
                       },
                       child: const Text(
-                        "Plantify",
+                        "Look Schedule",
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
