@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:smart_gebere/Loading/fetch_loading.dart';
+import 'package:smart_gebere/Loading/loading.dart';
 import 'package:smart_gebere/geo_Location/location.dart';
+import 'package:smart_gebere/scheduling/schedule.dart';
 
 class CropListPage extends StatefulWidget {
   @override
@@ -53,7 +55,7 @@ class _CropListPageState extends State<CropListPage> {
         : Scaffold(
             appBar: AppBar(
               title: const Text(
-                'Agriculture Innovation',
+                'Smart Gebere',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
               ),
               centerTitle: true,
@@ -212,7 +214,12 @@ class _CropCardState extends State<CropCard> {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         elevation: 3,
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => CropPlantingScreen(crop: 'corn',)),
+                        );
+                      },
                       child: const Text(
                         "Plantify",
                         style: TextStyle(
