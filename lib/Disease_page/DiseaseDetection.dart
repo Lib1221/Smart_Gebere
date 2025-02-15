@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ImageAnalyzer extends StatefulWidget {
   @override
@@ -22,7 +23,21 @@ class ImageAnalyzerState extends State<ImageAnalyzer> {
   void initState() {
     super.initState();
     _initializeModel();
+    _checkPermissions();
   }
+
+
+Future<void> _checkPermissions() async {
+  var status = await Permission.camera.status;
+  if (!status.isGranted) {
+    await Permission.camera.request();
+  }
+  status = await Permission.storage.status;
+  if (!status.isGranted) {
+    await Permission.storage.request();
+  }
+}
+
 
   void _initializeModel() {
     String apiKey = dotenv.env['API_KEY'] ?? 'No API Key Found';
@@ -301,7 +316,8 @@ class ImageAnalyzerState extends State<ImageAnalyzer> {
                   image: DecorationImage(
                     image: _imageBytes != null
                         ? MemoryImage(_imageBytes!)
-                        : const AssetImage('assets/image_2.jpg') as ImageProvider,
+                        : const AssetImage('assets/image_2.jpg')
+                            as ImageProvider,
                     fit: BoxFit.cover,
                   ),
                 ),

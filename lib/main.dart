@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -20,6 +22,127 @@ void main() async {
 
 
 
+// import 'package:flutter/material.dart';
+// import 'package:firebase_core/firebase_core.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'firebase_options.dart';
+
+// void main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//   await Firebase.initializeApp(
+//     options: DefaultFirebaseOptions.currentPlatform,
+//   );
+//   runApp(MyApp());
+// }
+
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       title: 'Retrieve Farming Data',
+//       theme: ThemeData(primarySwatch: Colors.green),
+//       home: RetrieveFarmingDataPage(),
+//     );
+//   }
+// }
+
+// class RetrieveFarmingDataPage extends StatefulWidget {
+//   @override
+//   _RetrieveFarmingDataPageState createState() =>
+//       _RetrieveFarmingDataPageState();
+// }
+
+// class _RetrieveFarmingDataPageState extends State<RetrieveFarmingDataPage> {
+//   Future<List<Map<String, dynamic>>> fetchData() async {
+//     String? uid = FirebaseAuth.instance.currentUser?.uid;
+//     if (uid == null) {
+//       print("No authenticated user.");
+//       return [];
+//     }
+
+//     FirebaseFirestore firestore = FirebaseFirestore.instance;
+//     CollectionReference farmingGuides =
+//         firestore.collection('Farmers').doc(uid).collection('farming_guides');
+
+//     QuerySnapshot cropSnapshot = await farmingGuides.get();
+
+//     // Print out the fetched crops
+//     print("Fetched crops: ${cropSnapshot.docs.length}");
+
+//     List<Map<String, dynamic>> cropData = [];
+
+//     for (var cropDoc in cropSnapshot.docs) {
+//       // The crop name is the document ID, e.g., 'barley', 'teff'
+//       print("Crop: ${cropDoc.id}");
+
+//       Map<String, dynamic> cropInfo = {
+//         "crop": cropDoc.id,
+//         "weeks": []
+//       };
+
+//       CollectionReference weeks =
+//           farmingGuides.doc(cropDoc.id).collection('weeks');
+//       QuerySnapshot weekSnapshot = await weeks.get();
+
+//       // Print out the fetched weeks for each crop
+//       print("Weeks for ${cropDoc.id}: ${weekSnapshot.docs.length}");
+
+//       for (var weekDoc in weekSnapshot.docs) {
+//         cropInfo["weeks"].add(weekDoc.data());
+//       }
+
+//       cropData.add(cropInfo);
+//     }
+
+//     print("Final crop data: $cropData"); // Debugging final data
+//     return cropData;
+//   }
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     fetchData(); // Fetch and print data when the page loads
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: const Text("Retrieve Farming Data")),
+//       body: FutureBuilder<List<Map<String, dynamic>>>( 
+//         future: fetchData(),
+//         builder: (context, snapshot) {
+//           if (snapshot.connectionState == ConnectionState.waiting) {
+//             return const Center(child: CircularProgressIndicator());
+//           }
+//           if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+//             return const Center(child: Text("No crops found."));
+//           }
+
+//           return ListView.builder(
+//             itemCount: snapshot.data!.length,
+//             itemBuilder: (context, index) {
+//               var crop = snapshot.data![index];
+//               return ListTile(
+//                 title: Text(crop['crop'], style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+//                 leading: const Icon(Icons.agriculture, color: Colors.green),
+//                 subtitle: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     ...crop['weeks'].map<Widget>((week) {
+//                       return Text("Week: ${week}");
+//                     }).toList()
+//                   ],
+//                 ),
+//               );
+//             },
+//           );
+//         },
+//       ),
+//     );
+//   }
+// }
 
 
 
