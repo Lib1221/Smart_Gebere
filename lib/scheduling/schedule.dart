@@ -131,38 +131,59 @@ class _CropPlantingScreenState extends State<CropPlantingScreen> {
     );
   }
 
-  Future<void> storeFarmingGuideForUser(List<WeekTask> farmingGuide) async {
-    try {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        _showSuccessPopup(
-            "No authenticated user found. Please log in and try again.",
-            "Authentication Error");
-        return;
-      }
+ Future<void> storeFarmingGuideForUser(List<WeekTask> farmingGuide) async {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) {
+      return const AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 10),
+            Text("Uploading data... Please wait"),
+          ],
+        ),
+      );
+    },
+  );
 
-      String uid = user.uid;
-      FirebaseFirestore firestore = FirebaseFirestore.instance;
-      CollectionReference cropCollection = firestore
-          .collection('Farmers')
-          .doc(uid)
-          .collection('farming_guides')
-          .doc(widget.crop)
-          .collection('weeks');
-
-      for (var week in farmingGuide) {
-        await cropCollection.add(week.toMap());
-      }
-
+  try {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      Navigator.pop(context); // Close loading dialog
       _showSuccessPopup(
-          "You successfully uploaded your data and planted the crop.",
-          "Success ✅");
-    } catch (e) {
-      _showSuccessPopup(
-          "Failed to store data due to an error. Please try again later.\nError: $e",
-          "Upload Failed ❌");
+          "No authenticated user found. Please log in and try again.",
+          "Authentication Error");
+      return;
     }
+
+    String uid = user.uid;
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    CollectionReference cropCollection = firestore
+        .collection('Farmers')
+        .doc(uid)
+        .collection('farming_guides')
+        .doc(widget.crop)
+        .collection('weeks');
+
+    for (var week in farmingGuide) {
+      await cropCollection.add(week.toMap());
+    }
+
+    Navigator.pop(context); // Close loading dialog
+    _showSuccessPopup(
+        "You successfully uploaded your data and planted the crop.",
+        "Success ✅");
+  } catch (e) {
+    Navigator.pop(context); // Close loading dialog
+    _showSuccessPopup(
+        "Failed to store data due to an error. Please try again later.\nError: $e",
+        "Upload Failed ❌");
   }
+}
+
 
   void _showConfirmationDialog() {
     showDialog(

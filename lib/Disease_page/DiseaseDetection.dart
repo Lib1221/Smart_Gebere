@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:typed_data';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:image_picker/image_picker.dart'; // For camera functionality
+import 'package:image_picker/image_picker.dart';
 
 class ImageAnalyzer extends StatefulWidget {
   @override
