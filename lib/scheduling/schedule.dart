@@ -12,12 +12,14 @@ class WeekTask {
   final List<String> dateRange;
   final String stage;
   final List<String> tasks;
+  final DateTime createdAt; // Manually handle created_at field
 
   WeekTask({
     required this.week,
     required this.dateRange,
     required this.stage,
     required this.tasks,
+    required this.createdAt, // Ensure it's initialized
   });
 
   factory WeekTask.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,9 @@ class WeekTask {
       dateRange: List<String>.from(json['date_range']),
       stage: json['stage'],
       tasks: List<String>.from(json['tasks']),
+      createdAt: (json['created_at'] != null)
+          ? (json['created_at'] as Timestamp).toDate()
+          : DateTime.now(), // Set to now if not available
     );
   }
 
@@ -35,7 +40,7 @@ class WeekTask {
       'date_range': dateRange,
       'stage': stage,
       'tasks': tasks,
-      'created_at': FieldValue.serverTimestamp(),
+      'created_at': createdAt.toIso8601String(), // Store as ISO string or other format
     };
   }
 }
@@ -113,7 +118,8 @@ class _CropPlantingScreenState extends State<CropPlantingScreen> {
     }
   }
 
-  Future<void> storeFarmingGuideForUser(List<WeekTask> farmingGuide) async {
+
+Future<void> storeFarmingGuideForUser(List<WeekTask> farmingGuide, String cropName) async {
   showDialog(
     context: context,
     barrierDismissible: true,
@@ -144,27 +150,35 @@ class _CropPlantingScreenState extends State<CropPlantingScreen> {
 
     String uid = user.uid;
     FirebaseFirestore firestore = FirebaseFirestore.instance;
-    CollectionReference cropCollection = firestore
-        .collection('Farmers')
-        .doc(uid)
-        .collection('farming_guides')
-        .doc(widget.crop)
-        .collection('weeks');
 
-    for (var week in farmingGuide) {
-      await cropCollection.add(week.toMap());
-    }
+    // Get reference to the user's document in Firestore
+    DocumentReference userDocRef = firestore.collection('Farmers').doc(uid);
+
+    // Create a unique ID for the crop
+    String cropId = FirebaseFirestore.instance.collection('Farmers').doc().id; // Unique ID for each crop
+
+    // Prepare the crop data
+    Map<String, dynamic> cropDataMap = {
+      'id': cropId,  // Unique ID for the crop
+      'name': cropName,
+      'weeks': farmingGuide.map((week) => week.toMap()).toList(),
+    };
+
+    // Set the crops array directly to the document, whether it exists or not
+    await userDocRef.set({
+      'crops': FieldValue.arrayUnion([cropDataMap]), // Add new crop data to the array
+    }, SetOptions(merge: true));
 
     Navigator.pop(context); 
     _showSuccessPopup(
-        "You successfully uploaded your data and planted the crop.",
-        "Success ✅"
+      "You successfully uploaded your data for $cropName.",
+      "Success ✅"
     );
   } catch (e) {
     Navigator.pop(context);
     _showSuccessPopup(
-        "Failed to store data due to an error. Please try again later.\nError: $e",
-        "Upload Failed ❌"
+      "Failed to store data due to an error. Please try again later.\nError: $e",
+      "Upload Failed ❌"
     );
   }
 }
@@ -208,7 +222,7 @@ void _showSuccessPopup(String message, String title) {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              storeFarmingGuideForUser(weekTasks);
+              storeFarmingGuideForUser(weekTasks, widget.crop);
               
             },
             child: const Text('Agree'),

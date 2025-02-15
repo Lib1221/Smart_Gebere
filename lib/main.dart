@@ -1,3 +1,90 @@
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_core/firebase_core.dart';
+// import 'package:flutter/material.dart';
+// import 'package:smart_gebere/firebase_options.dart';
+// import 'package:smart_gebere/scheduling/schedule.dart';
+
+// void main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//   await Firebase.initializeApp(
+//     options: DefaultFirebaseOptions.currentPlatform,
+//   ); // Ensure Firebase is initialized
+
+//   runApp(MyApp()); // Run the app
+// }
+
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       home: Scaffold(
+//         appBar: AppBar(title: const Text("Farming Guide")),
+//         body: FutureBuilder<void>(
+//           future: retrieveFarmingGuideForUser(), // Call the function to retrieve data
+//           builder: (context, snapshot) {
+//             if (snapshot.connectionState == ConnectionState.waiting) {
+//               return const Center(child: CircularProgressIndicator());
+//             } else if (snapshot.hasError) {
+//               return Center(child: Text('Error: ${snapshot.error}'));
+//             } else {
+//               return const Center(child: Text("Farming guide data loaded."));
+//             }
+//           },
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+// Future<void> retrieveFarmingGuideForUser() async {
+//   try {
+//     User? user = FirebaseAuth.instance.currentUser;
+
+//     if (user == null) {
+//       print('No authenticated user found.');
+//       return;
+//     }
+
+//     String uid = user.uid;
+//     FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+//     // Get reference to the user's document in Firestore
+//     DocumentReference userDocRef = firestore.collection('Farmers').doc(uid);
+
+//     // Fetch the farming guide data stored under the user's document
+//     DocumentSnapshot userDocSnapshot = await userDocRef.get();
+
+//     if (userDocSnapshot.exists) {
+//       var farmingGuideData = (userDocSnapshot.data() as Map<String, dynamic>)['farmingGuide'];
+
+//       if (farmingGuideData != null && farmingGuideData['weeks'] != null) {
+//         List<WeekTask> farmingGuide = [];
+
+//         for (var weekData in farmingGuideData['weeks']) {
+//           // Convert the data back to WeekTask objects
+//           WeekTask weekTask = WeekTask.fromJson(weekData);
+//           farmingGuide.add(weekTask);
+//         }
+
+//         // Display the retrieved data in the console
+//         print("Retrieved Farming Guide:");
+//         for (var week in farmingGuide) {
+//           print("Week: ${week.week}, Stage: ${week.stage}");
+//         }
+//       } else {
+//         print("No farming guide or weeks found.");
+//       }
+//     } else {
+//       print("User document does not exist.");
+//     }
+//   } catch (e) {
+//     print("Error retrieving farming guide data: $e");
+//   }
+// }
+
+
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
