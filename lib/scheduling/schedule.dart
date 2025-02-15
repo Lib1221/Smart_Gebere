@@ -113,28 +113,10 @@ class _CropPlantingScreenState extends State<CropPlantingScreen> {
     }
   }
 
-  void _showSuccessPopup(String val, String alert) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(alert),
-        content: Text(val),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
- Future<void> storeFarmingGuideForUser(List<WeekTask> farmingGuide) async {
+  Future<void> storeFarmingGuideForUser(List<WeekTask> farmingGuide) async {
   showDialog(
     context: context,
-    barrierDismissible: false,
+    barrierDismissible: true,
     builder: (context) {
       return const AlertDialog(
         content: Column(
@@ -152,10 +134,11 @@ class _CropPlantingScreenState extends State<CropPlantingScreen> {
   try {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      Navigator.pop(context); // Close loading dialog
+      Navigator.pop(context); 
       _showSuccessPopup(
-          "No authenticated user found. Please log in and try again.",
-          "Authentication Error");
+        "No authenticated user found. Please log in and try again.",
+        "Authentication Error"
+      );
       return;
     }
 
@@ -172,19 +155,43 @@ class _CropPlantingScreenState extends State<CropPlantingScreen> {
       await cropCollection.add(week.toMap());
     }
 
-    Navigator.pop(context); // Close loading dialog
+    Navigator.pop(context); 
     _showSuccessPopup(
         "You successfully uploaded your data and planted the crop.",
-        "Success ✅");
+        "Success ✅"
+    );
   } catch (e) {
-    Navigator.pop(context); // Close loading dialog
+    Navigator.pop(context);
     _showSuccessPopup(
         "Failed to store data due to an error. Please try again later.\nError: $e",
-        "Upload Failed ❌");
+        "Upload Failed ❌"
+    );
   }
 }
 
+void _showSuccessPopup(String message, String title) {
+  showDialog(
+    context: context,
+    barrierDismissible: false, 
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () {
+              Navigator.pop(context); 
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
 
+
+ 
   void _showConfirmationDialog() {
     showDialog(
       context: context,
@@ -200,8 +207,9 @@ class _CropPlantingScreenState extends State<CropPlantingScreen> {
           ),
           TextButton(
             onPressed: () {
-              storeFarmingGuideForUser(weekTasks);
               Navigator.pop(context);
+              storeFarmingGuideForUser(weekTasks);
+              
             },
             child: const Text('Agree'),
           ),

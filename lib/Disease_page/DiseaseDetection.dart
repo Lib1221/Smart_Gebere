@@ -58,28 +58,55 @@ Future<void> _checkPermissions() async {
       ],
     );
   }
-
-  void _pickFiles() async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowMultiple: false,
-        allowedExtensions: ['jpg', 'jpeg', 'png'],
-      );
-
-      if (result != null) {
-        PlatformFile file = result.files.first;
-
-        setState(() {
-          _imageBytes = file.bytes;
-        });
-      }
-    } catch (e) {
+void _pickFiles() async {
+  // Check if storage permission is granted before proceeding
+  var storageStatus = await Permission.storage.status;
+  if (!storageStatus.isGranted) {
+    // Request permission if not granted
+    await Permission.storage.request();
+    storageStatus = await Permission.storage.status;
+    if (!storageStatus.isGranted) {
+      // If permission is still not granted, show an error message
       setState(() {
-        generatedText = "Error selecting file: $e";
+        generatedText = "Storage permission is required to select a file.";
       });
+      return;
     }
   }
+
+  try {
+    // Open the file picker to select an image file
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowMultiple: false,
+      allowedExtensions: ['jpg', 'jpeg', 'png'],
+    );
+
+    if (result != null) {
+      PlatformFile file = result.files.first;
+
+      // Check if the file bytes are not null
+      if (file.bytes != null) {
+        setState(() {
+          _imageBytes = file.bytes; // Set the selected image bytes to _imageBytes
+          generatedText = "File selected successfully"; // Update the UI with success message
+        });
+      } else {
+        setState(() {
+          generatedText = "Error: File bytes are null"; // Handle case where file bytes are null
+        });
+      }
+    } else {
+      setState(() {
+        generatedText = "No file selected"; // Handle case where no file was selected
+      });
+    }
+  } catch (e) {
+    setState(() {
+      generatedText = "Error selecting file: $e"; // Handle any exceptions
+    });
+  }
+}
 
   void _captureImage() async {
     final ImagePicker picker = ImagePicker();
