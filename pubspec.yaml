@@ -50,6 +50,7 @@ dependencies:
   animated_text_kit: ^4.2.3
   timeline_tile: ^2.0.0
   permission_handler: ^11.3.1
+  firebase_database: 
   
 dev_dependencies:
   flutter_test:
