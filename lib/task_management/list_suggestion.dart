@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:smart_gebere/Loading/fetch_loading.dart';
 import 'package:smart_gebere/Loading/loading.dart';
 import 'package:smart_gebere/geo_Location/location.dart';
 import 'package:smart_gebere/scheduling/schedule.dart';
