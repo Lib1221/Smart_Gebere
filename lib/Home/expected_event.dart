@@ -1,9 +1,11 @@
-
-// ignore_for_file: library_private_types_in_public_api
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SlideableExpectedEvents extends StatefulWidget {
+  const SlideableExpectedEvents({Key? key}) : super(key: key);
+
   @override
   _SlideableExpectedEventsState createState() => _SlideableExpectedEventsState();
 }
@@ -11,86 +13,137 @@ class SlideableExpectedEvents extends StatefulWidget {
 class _SlideableExpectedEventsState extends State<SlideableExpectedEvents> {
   final PageController _pageController = PageController(viewportFraction: 0.9);
   int _currentPage = 0;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  late Future<List<Map<String, dynamic>>> _eventsFuture;
 
-  final List<Map<String, String>> events = [
-    {'event': 'Event 1', 'time': '10:00 AM'},
-    {'event': 'Event 2', 'time': '12:00 PM'},
-    {'event': 'Event 3', 'time': '02:00 PM'},
-    {'event': 'Event 4', 'time': '04:00 PM'},
-    {'event': 'Event 5', 'time': '06:00 PM'},
-    {'event': 'Event 6', 'time': '08:00 PM'},
-    {'event': 'Adugna', 'time': '06:00 PM'},
-    {'event': 'Liben', 'time': '08:00 PM'},
-    
-    
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _eventsFuture = _fetchEvents();
+  }
+
+  // 🔹 Fetches and filters crop events within ±7 days.
+  Future<List<Map<String, dynamic>>> _fetchEvents() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        // No authenticated user, return an empty list or show an error.
+        return [];
+      }
+
+      final String userId = user.uid;
+      final DocumentSnapshot userDoc = await _firestore.collection('Farmers').doc(userId).get();
+
+      if (!userDoc.exists) return [];
+
+      final List<dynamic> crops = userDoc['crops'] ?? [];
+      final DateTime today = DateTime.now();
+      final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+
+      List<Map<String, dynamic>> filteredEvents = [];
+
+      for (var crop in crops) {
+        for (var week in crop['weeks']) {
+          final List<String> dateRange = List<String>.from(week['date_range']);
+          final DateTime startDate = dateFormat.parse(dateRange[0]);
+          final DateTime endDate = dateFormat.parse(dateRange[1]);
+
+          // 🔍 Check if the event falls within ±7 days of today
+          if (today.isAfter(startDate.subtract(const Duration(days: 7))) &&
+              today.isBefore(endDate.add(const Duration(days: 7)))) {
+            filteredEvents.add({
+              'name': crop['name'],
+              'stage': week['stage'],
+              'start_date': dateFormat.format(startDate),
+              'end_date': dateFormat.format(endDate),
+            });
+          }
+        }
+      }
+
+      return filteredEvents;
+    } catch (e) {
+      print("Error fetching data: $e");
+      return [];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: PageView.builder(
-            controller: _pageController,
-            itemCount: (events.length / 2).ceil(), 
-            onPageChanged: (index) {
-              setState(() {
-                _currentPage = index;
-              });
-            },
-            itemBuilder: (context, pageIndex) {
-              final int firstEventIndex = pageIndex * 2;
-              final int secondEventIndex = firstEventIndex + 1;
+    return FutureBuilder<List<Map<String, dynamic>>>( 
+      future: _eventsFuture, 
+      builder: (context, snapshot) { 
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // First Card
-                  Expanded(
-                    child: _buildCard(
-                      events[firstEventIndex]['event']!,
-                      events[firstEventIndex]['time']!,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  // Second Card (check if exists)
-                  if (secondEventIndex < events.length)
-                    Expanded(
-                      child: _buildCard(
-                        events[secondEventIndex]['event']!,
-                        events[secondEventIndex]['time']!,
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+
+        final events = snapshot.data ?? [];
+        if (events.isEmpty) {
+          return const Center(child: Text("No Events Available"));
+        }
+
+        return Column(
+          children: [
+            Expanded(
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: (events.length / 2).ceil(),
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentPage = index;
+                  });
+                },
+                itemBuilder: (context, pageIndex) {
+                  final int firstEventIndex = pageIndex * 2;
+                  final int secondEventIndex = firstEventIndex + 1;
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: _buildCard(events[firstEventIndex]),
                       ),
-                    ),
-                ],
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 10),
-        // Dot Indicators
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(
-            (events.length / 2).ceil(),
-            (index) => AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              height: 10,
-              width: _currentPage == index ? 12 : 8,
-              decoration: BoxDecoration(
-                color: _currentPage == index
-                    ? Colors.teal.shade600
-                    : Colors.teal.shade200,
-                borderRadius: BorderRadius.circular(8),
+                      const SizedBox(width: 10),
+                      if (secondEventIndex < events.length)
+                        Expanded(
+                          child: _buildCard(events[secondEventIndex]),
+                        ),
+                    ],
+                  );
+                },
               ),
             ),
-          ),
-        ),
-      ],
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                (events.length / 2).ceil(),
+                (index) => AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  height: 10,
+                  width: _currentPage == index ? 12 : 8,
+                  decoration: BoxDecoration(
+                    color: _currentPage == index
+                        ? Colors.teal.shade600
+                        : Colors.teal.shade200,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildCard(String event, String time) {
+  // 🎨 Card UI to display event details without the tasks
+  Widget _buildCard(Map<String, dynamic> event) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
       padding: const EdgeInsets.all(12),
@@ -108,55 +161,33 @@ class _SlideableExpectedEventsState extends State<SlideableExpectedEvents> {
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            event,
+            "${event['name']} - ${event['stage']}",
             style: TextStyle(
-              fontSize: 22,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
               color: Colors.teal.shade900,
             ),
-            textAlign: TextAlign.center,
+            textAlign: TextAlign.left,
           ),
           const SizedBox(height: 8),
           Text(
-            time,
+            "Start Date: ${event['start_date']}",
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               color: Colors.teal.shade800,
             ),
-            textAlign: TextAlign.center,
+          ),
+          Text(
+            "End Date: ${event['end_date']}",
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.teal.shade800,
+            ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class ExpectedEventCard extends StatelessWidget {
-  final String eventName;
-
-  const ExpectedEventCard({super.key, required this.eventName});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      color: Colors.amber.shade200,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        child: Center(
-          child: Text(
-            eventName,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
       ),
     );
   }
