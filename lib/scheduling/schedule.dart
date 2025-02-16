@@ -5,6 +5,7 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:smart_gebere/Home/Home.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 
 class WeekTask {
@@ -196,6 +197,10 @@ void _showSuccessPopup(String message, String title) {
             child: const Text('OK'),
             onPressed: () {
               Navigator.pop(context); 
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Home_Screen()),
+              );
             },
           ),
         ],
