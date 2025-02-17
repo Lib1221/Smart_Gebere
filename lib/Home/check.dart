@@ -75,8 +75,8 @@ class _FarmingGuidePageState extends State<FarmingGuidePage> {
     DateTime endDate = DateTime.parse(dateRange[1]);
 
     // Check if the current date is within ±7 days of the date range
-    DateTime rangeStart = now.subtract(Duration(days: 7));
-    DateTime rangeEnd = now.add(Duration(days: 7));
+    DateTime rangeStart = now.subtract(const Duration(days: 7));
+    DateTime rangeEnd = now.add(const Duration(days: 7));
 
     return (startDate.isBefore(rangeEnd) && endDate.isAfter(rangeStart));
   }
@@ -85,7 +85,7 @@ class _FarmingGuidePageState extends State<FarmingGuidePage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        duration: Duration(seconds: 3),
+        duration: const Duration(seconds: 3),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -95,20 +95,20 @@ class _FarmingGuidePageState extends State<FarmingGuidePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Farming Guide"),
+        title: const Text("Farming Guide"),
       ),
       body: Center(
         child: isLoading
-            ? CircularProgressIndicator() // Show loading indicator while retrieving
+            ? const CircularProgressIndicator() // Show loading indicator while retrieving
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
                     onPressed: retrieveFarmingGuideForUser,
-                    child: Text("Retrieve Farming Guide"),
+                    child: const Text("Retrieve Farming Guide"),
                   ),
                   if (farmingGuide.isNotEmpty) ...[
-                    Text("Farming Guide", style: TextStyle(fontSize: 20)),
+                    const Text("Farming Guide", style: TextStyle(fontSize: 20)),
                     Expanded(
                       child: ListView.builder(
                         shrinkWrap: true,
