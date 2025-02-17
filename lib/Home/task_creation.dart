@@ -22,11 +22,11 @@ class TaskCreationSection extends StatelessWidget {
                   ),
                 );
               },
-              child: TaskCard(
+              child: const TaskCard(
                 title: 'Create Task',
                 subtitle: 'Let AI Guide You',
                 icon: Icons.add_circle_outline,
-                color: Colors.deepPurple.shade300,
+                color: Colors.green, // Set to green
               ),
             ),
           ),
@@ -40,11 +40,11 @@ class TaskCreationSection extends StatelessWidget {
                   ),
                 );
               },
-              child: TaskCard(
+              child: const TaskCard(
                 title: 'Detect & Discover',
                 subtitle: 'Add Image',
                 icon: Icons.image,
-                color: Colors.deepPurple.shade300,
+                color: Colors.green, // Set to green
               ),
             ),
           ),
@@ -72,11 +72,11 @@ class TaskCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.all(20),
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 10, // Increased elevation for 3D effect
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), // Rounder corners
       child: Container(
         color: color,
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
