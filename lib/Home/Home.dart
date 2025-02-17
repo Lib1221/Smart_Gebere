@@ -116,7 +116,7 @@ class Home_Screen extends StatelessWidget {
                             SectionHeader(title: 'Expected Events', bgColor: Colors.amber.shade100),
                             const SizedBox(height: 10,),
 
-                            Expanded(child: SlideableExpectedEvents()),
+                            const Expanded(child: SlideableExpectedEvents()),
                           ],
                         ),
                       ),
