@@ -1,8 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:typed_data';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:image_picker/image_picker.dart';
@@ -23,20 +23,10 @@ class ImageAnalyzerState extends State<ImageAnalyzer> {
   void initState() {
     super.initState();
     _initializeModel();
-    _checkPermissions();
   }
 
 
-Future<void> _checkPermissions() async {
-  var status = await Permission.camera.status;
-  if (!status.isGranted) {
-    await Permission.camera.request();
-  }
-  status = await Permission.storage.status;
-  if (!status.isGranted) {
-    await Permission.storage.request();
-  }
-}
+
 
 
   void _initializeModel() {
@@ -58,15 +48,25 @@ Future<void> _checkPermissions() async {
       ],
     );
   }
+
+
 void _pickFiles() async {
-  // Check if storage permission is granted before proceeding
+  // Check if running on the web
+  if (kIsWeb) {
+    // Directly open the file picker without permission checks for the web
+    await _pickFileForWeb();
+    return;
+  }
+
+  // Check if storage permission is granted before proceeding (Android/iOS)
   var storageStatus = await Permission.storage.status;
+
   if (!storageStatus.isGranted) {
     // Request permission if not granted
     await Permission.storage.request();
     storageStatus = await Permission.storage.status;
+
     if (!storageStatus.isGranted) {
-      // If permission is still not granted, show an error message
       setState(() {
         generatedText = "Storage permission is required to select a file.";
       });
@@ -104,6 +104,41 @@ void _pickFiles() async {
   } catch (e) {
     setState(() {
       generatedText = "Error selecting file: $e"; // Handle any exceptions
+    });
+  }
+}
+
+Future<void> _pickFileForWeb() async {
+  try {
+    // Open file picker on web directly
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowMultiple: false,
+      allowedExtensions: ['jpg', 'jpeg', 'png'],
+    );
+
+    if (result != null) {
+      PlatformFile file = result.files.first;
+
+      // Process the selected file
+      if (file.bytes != null) {
+        setState(() {
+          _imageBytes = file.bytes; // Store the selected file bytes
+          generatedText = "File selected successfully"; // Update the UI
+        });
+      } else {
+        setState(() {
+          generatedText = "Error: File bytes are null";
+        });
+      }
+    } else {
+      setState(() {
+        generatedText = "No file selected";
+      });
+    }
+  } catch (e) {
+    setState(() {
+      generatedText = "Error selecting file: $e"; // Handle errors on web
     });
   }
 }
