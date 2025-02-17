@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class SlideableExpectedEvents extends StatefulWidget {
-  const SlideableExpectedEvents({Key? key}) : super(key: key);
+  const SlideableExpectedEvents({super.key});
 
   @override
   _SlideableExpectedEventsState createState() => _SlideableExpectedEventsState();
