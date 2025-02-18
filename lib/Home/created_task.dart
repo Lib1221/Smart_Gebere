@@ -170,35 +170,43 @@ Widget _buildCropCard(String cropName, List<dynamic> weeks) {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          cropName,
-          style: TextStyle(
-            fontSize: 18, // Adjust font size to fit smaller layout
-            fontWeight: FontWeight.bold,
-            color: Colors.green.shade900, // Green color
+        // Crop name with dynamic font size adjustment
+        Flexible(
+          child: Text(
+            cropName,
+            style: TextStyle(
+              fontSize: 18, // Adjust font size to fit smaller layout
+              fontWeight: FontWeight.bold,
+              color: Colors.green.shade900, // Green color
+            ),
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis, // Truncate text if it's too long
           ),
-          textAlign: TextAlign.center,
         ),
         const SizedBox(height: 10),
         // Circular progress indicator with dynamic progress value
-        SizedBox(
-          height: 30, // Smaller height for the circular progress
-          width: 30,  // Smaller width for the circular progress
-          child: CircularProgressIndicator(
-            value: progress / 100, // Set the dynamic progress
-            strokeWidth: 4, // Thinner stroke for even smaller progress indicator
-            backgroundColor: Colors.green.shade200, // Light green background
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.green.shade600), // Darker green color
+        Flexible(
+          child: SizedBox(
+            height: 30, // Smaller height for the circular progress
+            width: 30,  // Smaller width for the circular progress
+            child: CircularProgressIndicator(
+              value: progress / 100, // Set the dynamic progress
+              strokeWidth: 4, // Thinner stroke for even smaller progress indicator
+              backgroundColor: Colors.green.shade200, // Light green background
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.green.shade600), // Darker green color
+            ),
           ),
         ),
         const SizedBox(height: 5),
         // Display the progress value inside the circular indicator
-        Text(
-          'Progress: ${progress.toStringAsFixed(1)}%', // Show progress as percentage
-          style: TextStyle(
-            fontSize: 14, // Reduced font size for progress text
-            color: Colors.green.shade800, // Dark green color
-            fontWeight: FontWeight.bold,
+        Flexible(
+          child: Text(
+            'Progress: ${progress.toStringAsFixed(1)}%', // Show progress as percentage
+            style: TextStyle(
+              fontSize: 14, // Reduced font size for progress text
+              color: Colors.green.shade800, // Dark green color
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ],
