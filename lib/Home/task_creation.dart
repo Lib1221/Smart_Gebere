@@ -41,7 +41,7 @@ class TaskCreationSection extends StatelessWidget {
                 );
               },
               child: const TaskCard(
-                title: 'Detect & Discover',
+                title: 'Detect',
                 subtitle: 'Add Image',
                 icon: Icons.image,
                 color: Colors.green, // Set to green
