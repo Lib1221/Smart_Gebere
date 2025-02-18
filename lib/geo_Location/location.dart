@@ -164,7 +164,7 @@ Return the list of dictionaries only. Do not include any additional text or info
       final response = await _model!.generateContent(content);
       String? responseText = response.text;
 
-      if (responseText == null || responseText.isEmpty) {
+      if (responseText!.isEmpty) {
         throw Exception("No response generated.");
       }
 
