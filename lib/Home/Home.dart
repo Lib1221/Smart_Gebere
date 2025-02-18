@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:smart_gebere/Home/created_task.dart';
 import 'package:smart_gebere/Home/expected_event.dart';
 import 'package:smart_gebere/Home/task_creation.dart';
+import 'package:smart_gebere/auth/login/login.dart';
 
 class Home_Screen extends StatelessWidget {
   const Home_Screen({super.key});
@@ -30,6 +31,42 @@ class Home_Screen extends StatelessWidget {
           ),
         ),
         elevation: 5,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            tooltip: 'Logout',
+            onPressed: () async {
+              bool confirmLogout = await showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text("Confirm Logout"),
+                    content: const Text("Are you sure you want to log out?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text("Cancel"),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                        ),
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: const Text("Logout"),
+                      ),
+                    ],
+                  );
+                },
+              );
+
+              if (confirmLogout == true) {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                );
+              }
+            },
+          ),
+        ],
       ),
       body: Container(
         width: double.infinity,
