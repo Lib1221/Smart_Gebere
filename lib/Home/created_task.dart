@@ -57,7 +57,6 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
         });
       }
     } catch (e) {
-      print("Error fetching crops data: $e");
     }
   }
 
@@ -183,8 +182,8 @@ Widget _buildCropCard(String cropName, List<dynamic> weeks) {
         const SizedBox(height: 10),
         // Circular progress indicator with dynamic progress value
         SizedBox(
-          height: 40, // Smaller height for the circular progress
-          width: 40,  // Smaller width for the circular progress
+          height: 30, // Smaller height for the circular progress
+          width: 30,  // Smaller width for the circular progress
           child: CircularProgressIndicator(
             value: progress / 100, // Set the dynamic progress
             strokeWidth: 4, // Thinner stroke for even smaller progress indicator

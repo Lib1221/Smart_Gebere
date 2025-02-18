@@ -63,7 +63,6 @@ class _SlideableExpectedEventsState extends State<SlideableExpectedEvents> {
 
       return filteredEvents;
     } catch (e) {
-      print("Error fetching data: $e");
       return [];
     }
   }
