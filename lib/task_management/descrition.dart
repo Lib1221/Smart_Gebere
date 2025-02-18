@@ -15,7 +15,7 @@ class _AgriculturePageState extends State<AgriculturePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Agriculture Innovation',
+          'Smart Gebere',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 22,
