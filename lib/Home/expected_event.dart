@@ -54,8 +54,6 @@ class _SlideableExpectedEventsState extends State<SlideableExpectedEvents> {
             filteredEvents.add({
               'name': crop['name'],
               'stage': week['stage'],
-              'start_date': dateFormat.format(startDate),
-              'end_date': dateFormat.format(endDate),
             });
           }
         }
@@ -142,52 +140,59 @@ class _SlideableExpectedEventsState extends State<SlideableExpectedEvents> {
   }
 
   // 🎨 Card UI to display event details without the tasks
-  Widget _buildCard(Map<String, dynamic> event) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.teal.shade100,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            offset: const Offset(0, 4),
-            blurRadius: 6,
-            spreadRadius: 1,
-          ),
-        ],
+ Widget _buildCard(Map<String, dynamic> event) {
+  return Container(
+    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [Colors.green.shade600, Colors.green.shade300],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "${event['name']} - ${event['stage']}",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.teal.shade900,
-            ),
-            textAlign: TextAlign.left,
+      borderRadius: BorderRadius.circular(20),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.green.withOpacity(0.3),
+          offset: const Offset(0, 6),
+          blurRadius: 10,
+          spreadRadius: 2,
+        ),
+      ],
+    ),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          event['name'],
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
-          const SizedBox(height: 8),
-          Text(
-            "Start Date: ${event['start_date']}",
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            event['stage'],
             style: TextStyle(
               fontSize: 16,
-              color: Colors.teal.shade800,
+              fontWeight: FontWeight.w600,
+              color: Colors.green.shade800,
             ),
           ),
-          Text(
-            "End Date: ${event['end_date']}",
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.teal.shade800,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
+
+
 }
