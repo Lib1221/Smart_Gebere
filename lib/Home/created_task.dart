@@ -1,9 +1,9 @@
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:timeline_tile/timeline_tile.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smart_gebere/Home/cropdetailpage.dart';
 
 class SlideableCreatedTasks extends StatefulWidget {
   @override
@@ -39,11 +39,11 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
               .map((crop) => {
                     'cropName': crop['name'],
                     'id': crop['id'],
+                    'plantingDate': crop['planting_date'],
                     'weeks': crop['weeks']
                         .map((week) => {
                               'week': week['week'],
                               'dateRange': week['date_range'],
-                              'stage': week['stage'],
                               'tasks': week['tasks'],
                             })
                         .toList(),
@@ -57,8 +57,17 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
           cropsData = [];
         });
       }
-    } catch (e) {
-    }
+    } catch (e) {}
+  }
+
+  int _calculateDaysSincePlanted(Timestamp? plantingDate) {
+    if (plantingDate == null) return 0;
+    DateTime plantDate = plantingDate.toDate();
+    return DateTime.now().difference(plantDate).inDays;
+  }
+
+  double _calculateProgress(int daysSincePlanted, int totalDays) {
+    return (daysSincePlanted / totalDays).clamp(0.0, 1.0);
   }
 
   @override
@@ -70,30 +79,15 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
           Expanded(
             child: PageView.builder(
               controller: _pageController,
-              itemCount: (cropsData.length / 2).ceil(),
+              itemCount: cropsData.length,
               onPageChanged: (index) {
                 setState(() {
                   _currentPage = index;
                 });
               },
               itemBuilder: (context, pageIndex) {
-                var startIndex = pageIndex * 2;
-                var crop1 = cropsData.length > startIndex ? cropsData[startIndex] : null;
-                var crop2 = cropsData.length > startIndex + 1 ? cropsData[startIndex + 1] : null;
-
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (crop1 != null)
-                      Expanded(
-                        child: _buildCard(crop1),
-                      ),
-                    if (crop2 != null)
-                      Expanded(
-                        child: _buildCard(crop2),
-                      ),
-                  ],
-                );
+                var crop = cropsData[pageIndex];
+                return _buildCard(crop);
               },
             ),
           ),
@@ -101,7 +95,7 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
-            (cropsData.length / 2).ceil(),
+            cropsData.length,
             (index) => AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -128,6 +122,12 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
   }
 
   Widget _buildCard(Map<String, dynamic> event) {
+    int daysSincePlanted = _calculateDaysSincePlanted(event['plantingDate']);
+    int totalDays = 120; // Example total days, adjust accordingly based on crop
+
+    double progress = _calculateProgress(daysSincePlanted, totalDays);
+    String progressPercentage = (progress * 100).toStringAsFixed(0);
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -156,32 +156,60 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
             ),
           ],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              event['cropName'],
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                event['weeks'].last['stage'],
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.green.shade800,
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  event['cropName'],
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    'Days: $daysSincePlanted',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.green.shade800,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 80,
+              width: 80,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    value: progress,
+                    backgroundColor: Colors.green.shade200,
+                    color: Colors.white,
+                    strokeWidth: 10,
+                  ),
+                  Text(
+                    '$progressPercentage%',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -189,148 +217,5 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
       ),
     );
   }
-}
 
-
-
-class CropDetailPage extends StatefulWidget {
-  final Map<String, dynamic> cropData;
-
-  const CropDetailPage({Key? key, required this.cropData}) : super(key: key);
-
-  @override
-  _CropDetailPageState createState() => _CropDetailPageState();
-}
-
-class _CropDetailPageState extends State<CropDetailPage> {
-  late List<bool> taskCompletion;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadTaskCompletion();
-  }
-
-  // Load the task completion states from SharedPreferences
-  Future<void> _loadTaskCompletion() async {
-    final prefs = await SharedPreferences.getInstance();
-    List<bool> loadedStates = [];
-    for (int i = 0; i < widget.cropData['weeks'].length; i++) {
-      String key = 'week_${i}_completed';
-      loadedStates.add(prefs.getBool(key) ?? false); // Default to false if no value found
-    }
-    setState(() {
-      taskCompletion = loadedStates;
-    });
-  }
-
-  // Save the task completion state in SharedPreferences
-  Future<void> _saveTaskCompletion(int weekIndex, bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    String key = 'week_${weekIndex}_completed';
-    await prefs.setBool(key, value);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.green.shade600,
-        title: Text(
-          widget.cropData['cropName'],
-          style: GoogleFonts.lato(color: Colors.white),
-        ),
-        elevation: 0,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
-          itemCount: widget.cropData['weeks'].length,
-          itemBuilder: (context, index) {
-            var week = widget.cropData['weeks'][index];
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12.0),
-              child: TimelineTile(
-                alignment: TimelineAlign.manual,
-                lineXY: 0.1,
-                indicatorStyle: IndicatorStyle(
-                  width: 20,
-                  color: Colors.green.shade600,
-                  padding: const EdgeInsets.all(6),
-                ),
-                endChild: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.green.withOpacity(0.2),
-                        offset: const Offset(0, 4),
-                        blurRadius: 10,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Week ${week['week']}: ${week['stage']}",
-                        style: GoogleFonts.roboto(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green.shade800,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "Tasks:",
-                        style: GoogleFonts.roboto(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.green.shade600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      ...week['tasks'].map<Widget>((task) {
-                        week['tasks'].indexOf(task);
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: Row(
-                            children: [
-                              Checkbox(
-                                value: taskCompletion.length > index
-                                    ? taskCompletion[index]
-                                    : false,
-                                onChanged: (bool? value) {
-                                  setState(() {
-                                    taskCompletion[index] = value ?? false;
-                                  });
-                                  _saveTaskCompletion(index, value ?? false);
-                                },
-                                activeColor: Colors.green.shade600,
-                              ),
-                              Text(
-                                task,
-                                style: GoogleFonts.roboto(
-                                  fontSize: 14,
-                                  color: Colors.green.shade700,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    ],
-                  ),
-                ),
-                isFirst: index == 0,
-                isLast: index == widget.cropData['weeks'].length - 1,
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
 }
