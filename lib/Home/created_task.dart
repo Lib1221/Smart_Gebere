@@ -24,8 +24,6 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
     return weeks.length; 
   }
 
- 
-
   Future<void> _fetchCropsData() async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
@@ -92,18 +90,15 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
     }
   }
 
-  int calculateProgressPercentage(List<dynamic> weeks, int diffrenceDate) {
-  if (weeks.isEmpty || diffrenceDate == null) return 0;
+  int calculateProgressPercentage(List<dynamic> weeks, int differenceDate) {
+    if (weeks.isEmpty || differenceDate == null) return 0;
 
-  int totalDays = weeks.length * 7; // Total expected days based on weeks
- 
-  
-  double percentage = (diffrenceDate / totalDays) * 100;
-  percentage = percentage.clamp(0, 100); // Ensures it stays between 0 and 100
+    int totalDays = weeks.length * 7; // Total expected days based on weeks
+    double percentage = (differenceDate / totalDays) * 100;
+    percentage = percentage.clamp(0, 100); // Ensures it stays between 0 and 100
 
-  return percentage.toInt();
-}
-
+    return percentage.toInt();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +162,7 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CropDetailPage(cropData: event),
+            builder: (context) => CropDetailPage(event: event),
           ),
         );
       },
