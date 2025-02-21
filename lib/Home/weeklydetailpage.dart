@@ -64,15 +64,15 @@ class WeekDetailPage extends StatelessWidget {
                       color: Colors.green.shade100,
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
-                        BoxShadow(color: Colors.green.shade200, blurRadius: 5, offset: Offset(2, 3)),
+                        BoxShadow(color: Colors.green.shade200, blurRadius: 5, offset: const Offset(2, 3)),
                       ],
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(data['day']!, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                        Text(data['emoji']!, style: TextStyle(fontSize: 30)),
-                        Text(data['temp']!, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                        Text(data['day']!, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text(data['emoji']!, style: const TextStyle(fontSize: 30)),
+                        Text(data['temp']!, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                         Text("💨 ${data['wind']!}", style: TextStyle(fontSize: 14, color: Colors.grey.shade700)),
                       ],
                     ),
