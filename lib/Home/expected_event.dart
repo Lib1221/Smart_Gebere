@@ -140,7 +140,7 @@ class _SlideableExpectedEventsState extends State<SlideableExpectedEvents> {
   }
 
   // 🎨 Card UI to display event details without the tasks
- Widget _buildCard(Map<String, dynamic> event) {
+Widget _buildCard(Map<String, dynamic> event) {
   return Container(
     margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
     padding: const EdgeInsets.all(16),
@@ -179,12 +179,17 @@ class _SlideableExpectedEventsState extends State<SlideableExpectedEvents> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Text(
-            event['stage'],
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.green.shade800,
+          child: SizedBox(
+            width: double.infinity, // Ensures text takes available space
+            child: Text(
+              event['stage'],
+              maxLines: 1, // Allows wrapping to next line
+              overflow: TextOverflow.ellipsis, // Truncates if it exceeds 2 lines
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.green.shade800,
+              ),
             ),
           ),
         ),
@@ -192,7 +197,6 @@ class _SlideableExpectedEventsState extends State<SlideableExpectedEvents> {
     ),
   );
 }
-
 
 
 }
