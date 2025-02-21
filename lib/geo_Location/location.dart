@@ -31,9 +31,10 @@ class LocationService {
 
     double latitude = position.latitude;
     double longitude = position.longitude;
-
     double elevation = await getElevation(latitude, longitude);
+
     Map<String, dynamic> weather = await getWeather(latitude, longitude);
+    
 
     return {
       "latitude": latitude,
@@ -44,11 +45,16 @@ class LocationService {
   }
 
   Future<double> getElevation(double lat, double lon) async {
-    final elevationUrl = Uri.parse('https://api.open-elevation.com/api/v1/lookup');
+    final elevationUrl =
+        Uri.parse('https://api.open-elevation.com/api/v1/lookup');
     final response = await http.post(
       elevationUrl,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({"locations": [{"latitude": lat, "longitude": lon}]}),
+      body: jsonEncode({
+        "locations": [
+          {"latitude": lat, "longitude": lon}
+        ]
+      }),
     );
 
     if (response.statusCode == 200) {
@@ -100,14 +106,15 @@ class LocationService {
     );
   }
 
-  Future<List<Map<String, dynamic>>> generateCropSuggestions(Map<String, dynamic> locationData) async {
+  Future<List<Map<String, dynamic>>> generateCropSuggestions(
+      Map<String, dynamic> locationData) async {
     if (_model == null) {
       throw Exception("Model is not initialized. Check your API key.");
     }
 
     Map<String, dynamic> locationData = await getCurrentLocation();
 
-      String prompt = """
+    String prompt = """
 Based on the following location data, provide a **detailed** and **well-researched** list of the most suitable crops for cultivation in this area. 
 
 ### **Location Data:**
@@ -156,9 +163,9 @@ don't make it markdown text
 Return the list of dictionaries only. Do not include any additional text or information before or after the list.
 """;
 
-
-
-    final content = [Content.multi([TextPart(prompt)])];
+    final content = [
+      Content.multi([TextPart(prompt)])
+    ];
 
     try {
       final response = await _model!.generateContent(content);
@@ -168,7 +175,8 @@ Return the list of dictionaries only. Do not include any additional text or info
         throw Exception("No response generated.");
       }
 
-      List<Map<String, dynamic>> cropList = List<Map<String, dynamic>>.from(jsonDecode(responseText));
+      List<Map<String, dynamic>> cropList =
+          List<Map<String, dynamic>>.from(jsonDecode(responseText));
       return cropList;
     } catch (e) {
       throw Exception("Failed to generate response: $e");
