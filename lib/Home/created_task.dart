@@ -121,59 +121,60 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
     );
   }
 
-  Widget _buildCard(Map<String, dynamic> event) {
-    int daysSincePlanted = _calculateDaysSincePlanted(event['plantingDate']);
-    int totalDays = 120; // Example total days, adjust accordingly based on crop
+ Widget _buildCard(Map<String, dynamic> event) {
+  int daysSincePlanted = _calculateDaysSincePlanted(event['plantingDate']);
+  int totalDays = 120; // Example total days, adjust accordingly based on crop
+  double progress = _calculateProgress(daysSincePlanted, totalDays);
+  String progressPercentage = (progress * 100).toStringAsFixed(0);
 
-    double progress = _calculateProgress(daysSincePlanted, totalDays);
-    String progressPercentage = (progress * 100).toStringAsFixed(0);
-
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CropDetailPage(cropData: event),
-          ),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.green.shade600, Colors.green.shade300],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.green.withOpacity(0.3),
-              offset: const Offset(0, 6),
-              blurRadius: 10,
-              spreadRadius: 2,
-            ),
-          ],
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CropDetailPage(cropData: event),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+      );
+    },
+    child: Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.green.shade600, Colors.green.shade300],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.green.withOpacity(0.3),
+            offset: const Offset(0, 6),
+            blurRadius: 10,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Left Side - 3/5 width
+          Expanded(
+            flex: 3,
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   event['cropName'],
                   style: const TextStyle(
-                    fontSize: 22,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -189,21 +190,26 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
                 ),
               ],
             ),
-            SizedBox(
-              height: 80,
-              width: 80,
+          ),
+          // Right Side - 2/5 width with a properly scaled CircularProgressIndicator
+          Expanded(
+            flex: 2,
+            child: Center(
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  CircularProgressIndicator(
-                    value: progress,
-                    backgroundColor: Colors.green.shade200,
-                    color: Colors.white,
-                    strokeWidth: 10,
+                  Transform.scale(
+                    scale: 1.6, // Adjust this value to make the progress circle larger
+                    child: CircularProgressIndicator(
+                      value: progress,
+                      backgroundColor: Colors.green.shade200,
+                      color: Colors.white,
+                      strokeWidth: 5,
+                    ),
                   ),
                   Text(
                     '$progressPercentage%',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -212,10 +218,11 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
 }
