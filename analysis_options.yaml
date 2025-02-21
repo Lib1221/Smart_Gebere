@@ -18,6 +18,7 @@ analyzer:
     empty_catches: ignore
     use_build_context_synchronously: ignore
     use_super_parameters: ignore
+    unnecessary_null_comparison: ignore
 include: package:flutter_lints/flutter.yaml
 
 linter:
