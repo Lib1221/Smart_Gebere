@@ -60,22 +60,6 @@ void _pickFiles() async {
     return;
   }
 
-  // Check if storage permission is granted before proceeding (Android/iOS)
-  var storageStatus = await Permission.storage.status;
-
-  if (!storageStatus.isGranted) {
-    // Request permission if not granted
-    await Permission.storage.request();
-    storageStatus = await Permission.storage.status;
-
-    if (!storageStatus.isGranted) {
-      setState(() {
-        generatedText = "Storage permission is required to select a file.";
-      });
-      return;
-    }
-  }
-
   try {
     // Open the file picker to select an image file
     FilePickerResult? result = await FilePicker.platform.pickFiles(
