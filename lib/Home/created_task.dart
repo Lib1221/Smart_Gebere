@@ -1,8 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:smart_gebere/Home/cropdetailpage.dart';
 
 class SlideableCreatedTasks extends StatefulWidget {
@@ -22,6 +20,12 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
     _fetchCropsData();
   }
 
+  int calculateTotalWeeks(List<dynamic> weeks) {
+    return weeks.length; 
+  }
+
+ 
+
   Future<void> _fetchCropsData() async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
@@ -36,18 +40,45 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
         var crops = docSnapshot['crops'] as List<dynamic>;
         setState(() {
           cropsData = crops
-              .map((crop) => {
-                    'cropName': crop['name'],
-                    'id': crop['id'],
-                    'plantingDate': crop['planting_date'],
-                    'weeks': crop['weeks']
-                        .map((week) => {
-                              'week': week['week'],
-                              'dateRange': week['date_range'],
-                              'tasks': week['tasks'],
-                            })
-                        .toList(),
-                  })
+              .map((crop) {
+                var firstWeek =
+                    crop['weeks'] != null && crop['weeks'].isNotEmpty
+                        ? crop['weeks'][0]
+                        : null;
+
+                var firstDate = firstWeek != null &&
+                        firstWeek['date_range'] != null &&
+                        firstWeek['date_range'].isNotEmpty
+                    ? DateTime.parse(firstWeek['date_range'][0])
+                    : null;
+
+                int differenceInDays = 0;
+                int progressPercentage = 0;
+                if (firstDate != null) {
+                  differenceInDays =
+                      (DateTime.now().difference(firstDate).inDays).abs();
+                  progressPercentage =
+                      calculateProgressPercentage(crop['weeks'], differenceInDays);
+                }
+
+                return {
+                  'cropName': crop['name'],
+                  'id': crop['id'],
+                  'firstWeekDateRange':
+                      firstWeek != null ? firstWeek['date_range'] : [],
+                  'weeks': crop['weeks'] != null
+                      ? crop['weeks']
+                          .map((week) => {
+                                'week': week['week'],
+                                'dateRange': week['date_range'],
+                                'tasks': week['tasks'],
+                              })
+                          .toList()
+                      : [],
+                  'daysSinceFirstPlanting': differenceInDays,
+                  'progressPercentage': progressPercentage, // Pass progress
+                };
+              })
               .toList()
               .reversed
               .toList();
@@ -57,18 +88,22 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
           cropsData = [];
         });
       }
-    } catch (e) {}
+    } catch (e) {
+    }
   }
 
-  int _calculateDaysSincePlanted(Timestamp? plantingDate) {
-    if (plantingDate == null) return 0;
-    DateTime plantDate = plantingDate.toDate();
-    return DateTime.now().difference(plantDate).inDays;
-  }
+  int calculateProgressPercentage(List<dynamic> weeks, int diffrenceDate) {
+  if (weeks.isEmpty || diffrenceDate == null) return 0;
 
-  double _calculateProgress(int daysSincePlanted, int totalDays) {
-    return (daysSincePlanted / totalDays).clamp(0.0, 1.0);
-  }
+  int totalDays = weeks.length * 7; // Total expected days based on weeks
+ 
+  
+  double percentage = (diffrenceDate / totalDays) * 100;
+  percentage = percentage.clamp(0, 100); // Ensures it stays between 0 and 100
+
+  return percentage.toInt();
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +137,9 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
               height: 10,
               width: _currentPage == index ? 12 : 8,
               decoration: BoxDecoration(
-                color: _currentPage == index ? Colors.green.shade600 : Colors.green.shade200,
+                color: _currentPage == index
+                    ? Colors.green.shade600
+                    : Colors.green.shade200,
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
@@ -121,108 +158,104 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
     );
   }
 
- Widget _buildCard(Map<String, dynamic> event) {
-  int daysSincePlanted = _calculateDaysSincePlanted(event['plantingDate']);
-  int totalDays = 120; // Example total days, adjust accordingly based on crop
-  double progress = _calculateProgress(daysSincePlanted, totalDays);
-  String progressPercentage = (progress * 100).toStringAsFixed(0);
+  Widget _buildCard(Map<String, dynamic> event) {
+    int daysSincePlanted = event['daysSinceFirstPlanting'];
+    int progressPercentage = event['progressPercentage'];
 
-  return GestureDetector(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => CropDetailPage(cropData: event),
-        ),
-      );
-    },
-    child: Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.green.shade600, Colors.green.shade300],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.green.withOpacity(0.3),
-            offset: const Offset(0, 6),
-            blurRadius: 10,
-            spreadRadius: 2,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CropDetailPage(cropData: event),
           ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Left Side - 3/5 width
-          Expanded(
-            flex: 3,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  event['cropName'],
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    'Days: $daysSincePlanted',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.green.shade800,
-                    ),
-                  ),
-                ),
-              ],
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.green.shade600, Colors.green.shade300],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.green.withOpacity(0.3),
+              offset: const Offset(0, 6),
+              blurRadius: 10,
+              spreadRadius: 2,
             ),
-          ),
-          // Right Side - 2/5 width with a properly scaled CircularProgressIndicator
-          Expanded(
-            flex: 2,
-            child: Center(
-              child: Stack(
-                alignment: Alignment.center,
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              flex: 3,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Transform.scale(
-                    scale: 1.6, // Adjust this value to make the progress circle larger
-                    child: CircularProgressIndicator(
-                      value: progress,
-                      backgroundColor: Colors.green.shade200,
-                      color: Colors.white,
-                      strokeWidth: 5,
-                    ),
-                  ),
                   Text(
-                    '$progressPercentage%',
+                    event['cropName'],
                     style: const TextStyle(
-                      fontSize: 18,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'Days: $daysSincePlanted',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.green.shade800,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+            Expanded(
+              flex: 2,
+              child: Center(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Transform.scale(
+                      scale: 1.6,
+                      child: CircularProgressIndicator(
+                        value: progressPercentage / 100,
+                        backgroundColor: Colors.green.shade200,
+                        color: Colors.white,
+                        strokeWidth: 5,
+                      ),
+                    ),
+                    Text(
+                      '$progressPercentage%',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 }
