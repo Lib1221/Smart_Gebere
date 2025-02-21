@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -85,15 +87,14 @@ void _pickFiles() async {
     if (result != null) {
       PlatformFile file = result.files.first;
 
-      // Check if the file bytes are not null
-      if (file.bytes != null) {
+      if (file.path != null) {
         setState(() {
-          _imageBytes = file.bytes; // Set the selected image bytes to _imageBytes
-          generatedText = "File selected successfully"; // Update the UI with success message
+          _imageBytes = File(file.path!).readAsBytesSync(); // Read file using its path
+          generatedText = "File selected successfully"; // Update UI with success message
         });
       } else {
         setState(() {
-          generatedText = "Error: File bytes are null"; // Handle case where file bytes are null
+          generatedText = "Error: File path is null"; // Handle case where file path is null
         });
       }
     } else {
