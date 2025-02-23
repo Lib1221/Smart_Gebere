@@ -53,7 +53,7 @@ class WeekDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             SizedBox(
-              height: 120, // Fixed height for horizontal scrolling
+              height: 120,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: forecast.length,
