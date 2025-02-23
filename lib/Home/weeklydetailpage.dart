@@ -35,6 +35,8 @@ class WeekDetailPage extends StatelessWidget {
       {"day": "Wed", "emoji": "🌧️", "temp": "24°C", "wind": "15 km/h"},
       {"day": "Thu", "emoji": "🌦️", "temp": "25°C", "wind": "8 km/h"},
       {"day": "Fri", "emoji": "🌩️", "temp": "22°C", "wind": "20 km/h"},
+      {"day": "Sat", "emoji": "🌦️", "temp": "25°C", "wind": "8 km/h"},
+      {"day": "Sun", "emoji": "🌩️", "temp": "22°C", "wind": "20 km/h"},
     ];
 
     return Card(
