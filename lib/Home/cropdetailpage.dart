@@ -5,7 +5,7 @@ import 'package:smart_gebere/Home/Home.dart';
 import 'package:smart_gebere/Home/weeklydetailpage.dart';
 
 class CropDetailPage extends StatelessWidget {
-  final Map<String, dynamic> event; // Crop data with ID
+  final Map<String, dynamic> event; 
 
   const CropDetailPage({super.key, required this.event});
 
@@ -36,7 +36,6 @@ class CropDetailPage extends StatelessWidget {
     );
   }
 
-  // Crop Header Section
   Widget _buildCropHeader() {
     return Container(
       decoration: BoxDecoration(
@@ -223,7 +222,6 @@ class CropDetailPage extends StatelessWidget {
       FirebaseFirestore firestore = FirebaseFirestore.instance;
       DocumentReference userDocRef = firestore.collection('Farmers').doc(uid);
 
-      // Fetch the current crops array
       DocumentSnapshot userDoc = await userDocRef.get();
       if (!userDoc.exists || !(userDoc.data() as Map<String, dynamic>).containsKey('crops')) {
         _showSuccessPopup(context, "No crops found to delete.", "Delete Failed ❌");
@@ -232,7 +230,6 @@ class CropDetailPage extends StatelessWidget {
 
       List<dynamic> crops = List.from(userDoc['crops']);
 
-      // Filter out the crop to be deleted
       crops.removeWhere((crop) => crop['id'] == cropId);
 
       if (crops.length == userDoc['crops'].length) {
