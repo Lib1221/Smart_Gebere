@@ -139,48 +139,55 @@ class _SlideableExpectedEventsState extends State<SlideableExpectedEvents> {
   }
 
   Widget _buildCard(Map<String, dynamic> event) {
-    return GestureDetector(
-      onTap: () => _showEventDialog(event),
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.green.shade600, Colors.green.shade300],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.green.withOpacity(0.3),
-              offset: const Offset(0, 6),
-              blurRadius: 10,
-              spreadRadius: 2,
-            ),
-          ],
+  return GestureDetector(
+    onTap: () => _showEventDialog(event),
+    child: Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.green.shade600, Colors.green.shade300],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              event['name'],
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.green.withOpacity(0.3),
+            offset: const Offset(0, 6),
+            blurRadius: 10,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Event Name
+          Text(
+            event['name'],
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
+          ),
+          const SizedBox(height: 8),
+
+          // Stage with Truncation
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: SizedBox(
+              width: 180, // Adjust width to fit UI
               child: Text(
                 event['stage'],
+                maxLines: 1, // Ensures single-line text
+                overflow: TextOverflow.ellipsis, // Adds "..." if too long
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -188,11 +195,12 @@ class _SlideableExpectedEventsState extends State<SlideableExpectedEvents> {
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   void _showEventDialog(Map<String, dynamic> event) {
     AwesomeDialog(
