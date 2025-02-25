@@ -68,7 +68,7 @@ class _CropPlantingScreenState extends State<CropPlantingScreen> {
 
   Future<void> fetchWeekTasks(String crop) async {
     try {
-      final apiKey = dotenv.env['API_KEY'] ?? "";
+      final apiKey = dotenv.env['API_KEY2'] ?? "";
       if (apiKey.isEmpty) throw Exception("API Key is missing!");
 
       final model = GenerativeModel(model: 'gemini-pro', apiKey: apiKey);
