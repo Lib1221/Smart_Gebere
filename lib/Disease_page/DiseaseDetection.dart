@@ -121,13 +121,13 @@ void _pickFiles() async {
       Analyze the provided plant leaf image and provide the following details:
 
       **Disease Name:** 
-      **Local Name:** (Amharic and Afan Oromo)
       **Symptoms:** 
       **Possible Causes:** 
       **Precautions:** 
       **Treatment Options:** 
 
       If the image quality is poor or no disease is detected, indicate that clearly.
+      also make it concise
     """;
 
     final content = [
