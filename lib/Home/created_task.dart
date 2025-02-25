@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:smart_gebere/Home/cropdetailpage.dart';
+import 'package:smart_gebere/geo_Location/wetherdata.dart';
 
 class SlideableCreatedTasks extends StatefulWidget {
   @override
@@ -14,6 +15,7 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
 
   List<Map<String, dynamic>> cropsData = [];
 
+
   @override
   void initState() {
     super.initState();
@@ -21,7 +23,7 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
   }
 
   int calculateTotalWeeks(List<dynamic> weeks) {
-    return weeks.length; 
+    return weeks.length;
   }
 
   Future<void> _fetchCropsData() async {
@@ -55,8 +57,8 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
                 if (firstDate != null) {
                   differenceInDays =
                       (DateTime.now().difference(firstDate).inDays).abs();
-                  progressPercentage =
-                      calculateProgressPercentage(crop['weeks'], differenceInDays);
+                  progressPercentage = calculateProgressPercentage(
+                      crop['weeks'], differenceInDays);
                 }
 
                 return {
@@ -86,8 +88,7 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
           cropsData = [];
         });
       }
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   int calculateProgressPercentage(List<dynamic> weeks, int differenceDate) {
