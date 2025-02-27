@@ -100,9 +100,9 @@ class _WeekDetailPageState extends State<WeekDetailPage> {
 
   Widget _buildWeatherSection() {
     if (isLoading) {
-      return Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator());
     } else if (weatherData.isEmpty) {
-      return Center(child: Text("No weather data available."));
+      return const Center(child: Text("No weather data available."));
     } else {
       return Card(
         elevation: 4,
