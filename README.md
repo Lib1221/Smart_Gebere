@@ -4,13 +4,11 @@ _A Smarter Way to Cultivate Success!_
 <div align="center">  
   <h3>📽️ Watch the Pre-Review Video</h3>  
   <a href="https://youtu.be/C8Kw2S8Khf0">  
-    <img src="https://img.youtube.com/vi/C8Kw2S8Khf0/maxresdefault.jpg" alt="Smart Gebere - YouTube Video" width="75%">  
+    <img src="https://img.youtube.com/vi/C8Kw2S8Khf0/maxresdefault.jpg" alt="Smart Gebere - YouTube Video" width="70%">  
   </a>  
 </div>  
 
 **Smart Gebere** is here to revolutionize the way farmers grow their crops 🌱, protect their plants 🛡️, and plan their days 🗓️. With cutting-edge AI and GPS integration, this app is the ultimate farming assistant 🚜.  
-
----
 
 ## 🌟 Key Features 🌟  
 
@@ -31,14 +29,10 @@ _A Smarter Way to Cultivate Success!_
 💻 _"Designed with you in mind."_  
 - A **simple and intuitive interface**, ensuring anyone can use it with ease.  
 
----
-
 ## 🛠️ Built With Love and Tech ❤️‍🔥  
 
 - **Flutter** 🚀 - For crafting a cross-platform experience.  
 - **Firebase** 🔥 - Seamless backend integration.  
-
----
 
 ## 🧑‍🌾 How to Get Started  
 
@@ -51,7 +45,7 @@ _A Smarter Way to Cultivate Success!_
 
 1. Clone the repo:  
    ```bash
-   git clone https://github.com/YourUsername/Smart_Gebere.git
+   git clone https://github.com/lib1221/Smart_Gebere.git
    cd SmartGebere
    ```  
 
@@ -68,8 +62,6 @@ _A Smarter Way to Cultivate Success!_
    flutter run
    ```  
 
----
-
 ## 🌍 How It Works  
 
 1. **Crop Recommendations** 🌽  
@@ -81,28 +73,17 @@ _A Smarter Way to Cultivate Success!_
 3. **Weather Forecasting** 🌦️  
    - Stay ahead with precise weather updates tailored to your area.  
 
----
-
 ## 📸 Screenshots  
 
-🚀 **Coming Soon!** (A picture is worth a thousand crops!)  
-
 <div align="center">  
-  <img src="https://via.placeholder.com/800x400.png?text=Home+Screen" alt="Home Screen" width="75%">  
-  <p><i>🏡 Home Screen - Your Farming Dashboard</i></p>  
-</div>  
-
-<div align="center">  
-  <img src="https://via.placeholder.com/800x400.png?text=Crop+Recommendation" alt="Crop Recommendation" width="75%">  
+  <img src="photo_7_2025-02-11_21-45-30.jpg" alt="Crop Recommendation" width="65%">  
   <p><i>🌽 Crop Recommendation - Personalized for Your Farm</i></p>  
 </div>  
 
 <div align="center">  
-  <img src="https://via.placeholder.com/800x400.png?text=Disease+Detection" alt="Disease Detection" width="75%">  
+  <img src="photo_1_2025-02-11_21-45-30.jpg" alt="Disease Detection" width="65%">  
   <p><i>🦠 Disease Detection - AI-powered Analysis</i></p>  
 </div>  
-
----
 
 ## ✨ Future Plans  
 
@@ -110,19 +91,13 @@ _A Smarter Way to Cultivate Success!_
 📉 Track **local market prices** for better sales planning.  
 📴 Enable **offline mode** for remote areas.  
 
----
-
 ## 🌱 Contributing  
 
 Want to help us grow? 🌾 Fork the repo, create a feature branch, and submit a pull request!  
 
----
-
 ## 📜 License  
 
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.  
-
----
 
 ## 🌟 Let’s Empower Farmers Together! 🌟  
 
