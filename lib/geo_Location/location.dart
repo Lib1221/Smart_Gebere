@@ -34,7 +34,6 @@ class LocationService {
     double elevation = await getElevation(latitude, longitude);
 
     Map<String, dynamic> weather = await getWeather(latitude, longitude);
-    
 
     return {
       "latitude": latitude,
@@ -113,15 +112,14 @@ class LocationService {
     }
 
     Map<String, dynamic> locationData = await getCurrentLocation();
-
+    DateTime now = DateTime.now();
     String prompt = """
 Based on the following location data, provide a **detailed** and **well-researched** list of the most suitable crops for cultivation in this area. 
-
+also analyse from these  ${now} extract data and and from location you could know the exact location then analyse in which season are in now
 ### **Location Data:**
-- **Location:** Adama, Oromia, Ethiopia
 - **Latitude:** ${locationData['latitude']}
 - **Longitude:** ${locationData['longitude']}
-- **Elevation:** ${locationData['elevation']} meters
+- **altitude:** ${locationData['elevation']} meters
 - **Current Temperature:** ${locationData['weather']['temperature']}°C
 - **Current Weather:** ${locationData['weather']['weather']}
 
