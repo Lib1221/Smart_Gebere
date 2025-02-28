@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
-import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:smart_gebere/Home/Home.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 
@@ -13,14 +14,14 @@ class WeekTask {
   final List<String> dateRange;
   final String stage;
   final List<String> tasks;
-  final DateTime createdAt; // Manually handle created_at field
+  final DateTime createdAt;
 
   WeekTask({
     required this.week,
     required this.dateRange,
     required this.stage,
     required this.tasks,
-    required this.createdAt, // Ensure it's initialized
+    required this.createdAt,
   });
 
   factory WeekTask.fromJson(Map<String, dynamic> json) {
@@ -31,7 +32,7 @@ class WeekTask {
       tasks: List<String>.from(json['tasks']),
       createdAt: (json['created_at'] != null)
           ? (json['created_at'] as Timestamp).toDate()
-          : DateTime.now(), // Set to now if not available
+          : DateTime.now(),
     );
   }
 
@@ -41,7 +42,7 @@ class WeekTask {
       'date_range': dateRange,
       'stage': stage,
       'tasks': tasks,
-      'created_at': createdAt.toIso8601String(), // Store as ISO string or other format
+      'created_at': createdAt.toIso8601String(),
     };
   }
 }
@@ -59,19 +60,37 @@ class _CropPlantingScreenState extends State<CropPlantingScreen> {
   List<WeekTask> weekTasks = [];
   bool isLoading = true;
   String errorMessage = '';
+  late GenerativeModel model;
 
   @override
   void initState() {
     super.initState();
+    initializeModel();
     fetchWeekTasks(widget.crop);
+  }
+
+  void initializeModel() {
+    String apiKey = dotenv.env['API_KEY'] ?? '';
+
+    if (apiKey.isEmpty) {
+      throw Exception("API Key is missing. Please set it in the .env file.");
+    }
+
+    model = GenerativeModel(
+      model: 'gemini-1.5-flash-latest',
+      apiKey: apiKey,
+      safetySettings: [
+        SafetySetting(HarmCategory.harassment, HarmBlockThreshold.high),
+        SafetySetting(HarmCategory.hateSpeech, HarmBlockThreshold.high),
+      ],
+    );
   }
 
   Future<void> fetchWeekTasks(String crop) async {
     try {
-      final apiKey = dotenv.env['API_KEY2'] ?? "";
+      final apiKey = dotenv.env['API_KEY'] ?? "";
       if (apiKey.isEmpty) throw Exception("API Key is missing!");
 
-      final model = GenerativeModel(model: 'gemini-pro', apiKey: apiKey);
       DateTime now = DateTime.now();
       String prompt = """
       You are an advanced agricultural assistant. Provide a week-by-week planting guide for **$crop** based on today's date **$now**. 
@@ -95,7 +114,14 @@ class _CropPlantingScreenState extends State<CropPlantingScreen> {
           ]
         }
       ]
+
+      **Output:**
+      Remove any markdown formatting (e.g., triple backticks ``` and JSON syntax) from the given text while keeping the content structure intact. Output the result in plain text without any formatting symbols
+don't make it markdown text
+
+Return the list of dictionaries only. Do not include any additional text or information before or after the list.
       Return a pure list of dictionaries.
+      also don't include any markdown text
       don't add before and after from it only return the list and dictionaries
       """;
 
@@ -119,98 +145,88 @@ class _CropPlantingScreenState extends State<CropPlantingScreen> {
     }
   }
 
-
-Future<void> storeFarmingGuideForUser(List<WeekTask> farmingGuide, String cropName) async {
-  showDialog(
-    context: context,
-    barrierDismissible: true,
-    builder: (context) {
-      return const AlertDialog(
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 10),
-            Text("Uploading data... Please wait"),
-          ],
-        ),
-      );
-    },
-  );
-
-  try {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      Navigator.pop(context); 
-      _showSuccessPopup(
-        "No authenticated user found. Please log in and try again.",
-        "Authentication Error"
-      );
-      return;
-    }
-
-    String uid = user.uid;
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-    // Get reference to the user's document in Firestore
-    DocumentReference userDocRef = firestore.collection('Farmers').doc(uid);
-
-    // Create a unique ID for the crop
-    String cropId = FirebaseFirestore.instance.collection('Farmers').doc().id; // Unique ID for each crop
-
-    // Prepare the crop data
-    Map<String, dynamic> cropDataMap = {
-      'id': cropId,  // Unique ID for the crop
-      'name': cropName,
-      'weeks': farmingGuide.map((week) => week.toMap()).toList(),
-    };
-
-    // Set the crops array directly to the document, whether it exists or not
-    await userDocRef.set({
-      'crops': FieldValue.arrayUnion([cropDataMap]), // Add new crop data to the array
-    }, SetOptions(merge: true));
-
-    Navigator.pop(context); 
-    _showSuccessPopup(
-      "You successfully uploaded your data for $cropName.",
-      "Success ✅"
+  Future<void> storeFarmingGuideForUser(
+      List<WeekTask> farmingGuide, String cropName) async {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return const AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 10),
+              Text("Uploading data... Please wait"),
+            ],
+          ),
+        );
+      },
     );
-  } catch (e) {
-    Navigator.pop(context);
-    _showSuccessPopup(
-      "Failed to store data due to an error. Please try again later.\nError: $e",
-      "Upload Failed ❌"
+
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        Navigator.pop(context);
+        _showSuccessPopup(
+            "No authenticated user found. Please log in and try again.",
+            "Authentication Error");
+        return;
+      }
+
+      String uid = user.uid;
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+      DocumentReference userDocRef = firestore.collection('Farmers').doc(uid);
+
+      String cropId = FirebaseFirestore.instance.collection('Farmers').doc().id;
+
+      Map<String, dynamic> cropDataMap = {
+        'id': cropId,
+        'name': cropName,
+        'weeks': farmingGuide.map((week) => week.toMap()).toList(),
+      };
+
+      await userDocRef.set({
+        'crops': FieldValue.arrayUnion([cropDataMap]),
+      }, SetOptions(merge: true));
+
+      Navigator.pop(context);
+      _showSuccessPopup(
+          "You successfully uploaded your data for $cropName.", "Success ✅");
+    } catch (e) {
+      Navigator.pop(context);
+      _showSuccessPopup(
+          "Failed to store data due to an error. Please try again later.\nError: $e",
+          "Upload Failed ❌");
+    }
+  }
+
+  void _showSuccessPopup(String message, String title) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Home_Screen()),
+                );
+              },
+            ),
+          ],
+        );
+      },
     );
   }
-}
 
-void _showSuccessPopup(String message, String title) {
-  showDialog(
-    context: context,
-    barrierDismissible: false, 
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('OK'),
-            onPressed: () {
-              Navigator.pop(context); 
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const Home_Screen()),
-              );
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
-
-
- 
   void _showConfirmationDialog() {
     showDialog(
       context: context,
@@ -228,7 +244,6 @@ void _showSuccessPopup(String message, String title) {
             onPressed: () {
               Navigator.pop(context);
               storeFarmingGuideForUser(weekTasks, widget.crop);
-              
             },
             child: const Text('Agree'),
           ),
