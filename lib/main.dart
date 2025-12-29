@@ -6,6 +6,8 @@ import 'package:smart_gebere/firebase_options.dart';
 import 'package:smart_gebere/stream/stream_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_gebere/settings/app_settings.dart';
+import 'package:smart_gebere/core/services/offline_storage.dart';
+import 'package:smart_gebere/core/services/connectivity_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:smart_gebere/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,6 +20,13 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  // Initialize offline storage (Hive)
+  await OfflineStorage.init();
+  
+  // Initialize connectivity monitoring
+  final connectivityService = ConnectivityService();
+  await connectivityService.init();
+
   // Lock the orientation to **portrait mode only**
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -26,8 +35,11 @@ void main() async {
   final appSettings = await AppSettings.load();
 
   runApp(
-    ChangeNotifierProvider.value(
-      value: appSettings,
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: appSettings),
+        ChangeNotifierProvider.value(value: connectivityService),
+      ],
       child: const SmartGebereApp(),
     ),
   );

@@ -48,6 +48,18 @@ dependencies:
   file_picker: ^9.0.2
   flutter_markdown: ^0.7.6+2
   image_picker: ^1.1.2
+  # Offline-first + local storage
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  connectivity_plus: ^6.1.0
+  # Charts for analytics
+  fl_chart: ^0.69.2
+  # UUID generation
+  uuid: ^4.5.1
+  # Image compression
+  flutter_image_compress: ^2.3.0
+  # Path provider for file storage
+  path_provider: ^2.1.5
 
 
   
