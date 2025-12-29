@@ -15,6 +15,17 @@
     the `--base-href` argument provided to `flutter build`.
   -->
   <base href="$FLUTTER_BASE_HREF">
+  <script>
+    // Compatibility fallback:
+    // Some Flutter toolchains don't replace $FLUTTER_BASE_HREF during `flutter run -d chrome`,
+    // which causes web assets like `assets/AssetManifest.json` to 404.
+    (function () {
+      var base = document.getElementsByTagName('base')[0];
+      if (base && base.getAttribute('href') === '$FLUTTER_BASE_HREF') {
+        base.setAttribute('href', '/');
+      }
+    })();
+  </script>
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">

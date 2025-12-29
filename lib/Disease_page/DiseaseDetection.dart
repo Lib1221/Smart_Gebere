@@ -19,19 +19,30 @@ class ImageAnalyzerState extends State<ImageAnalyzer> {
   late GenerativeModel? _model;
   bool _isLoading = false;
 
+  void _debugLog(String message) {
+    if (!kDebugMode) return;
+    debugPrint('[DiseaseDetection] $message');
+  }
+
+  void _debugPrintAiResponse(String feature, String? text) {
+    if (!kDebugMode) return;
+    final safeText = (text ?? '').trim();
+    final preview =
+        safeText.length > 1200 ? '${safeText.substring(0, 1200)}…' : safeText;
+    debugPrint('[$feature] AI response (${safeText.length} chars):\n$preview');
+  }
+
   @override
   void initState() {
     super.initState();
     _initializeModel();
   }
 
-
-
-
-
   void _initializeModel() {
     String apiKey = dotenv.env['API_KEY'] ?? 'No API Key Found';
-
+    final preferredModel = dotenv.env['GEMINI_MODEL'] ?? 'gemini-2.5-flash';
+    // Don't print API keys (security risk). If you need debugging, print only whether it's set.
+    _debugLog('API key present: ${apiKey.isNotEmpty}');
     if (apiKey.isEmpty) {
       setState(() {
         generatedText = "API Key is missing. Please set it in the code.";
@@ -40,51 +51,55 @@ class ImageAnalyzerState extends State<ImageAnalyzer> {
     }
 
     _model = GenerativeModel(
-      model: 'gemini-1.5-flash-latest',
+      // Use a stable model id supported by the API used by `google_generative_ai`.
+      model: preferredModel,
       apiKey: apiKey,
       safetySettings: [
         SafetySetting(HarmCategory.harassment, HarmBlockThreshold.high),
         SafetySetting(HarmCategory.hateSpeech, HarmBlockThreshold.high),
       ],
     );
+
+    _debugLog('Preferred Gemini model: $preferredModel');
   }
 
+  void _pickFiles() async {
+    try {
+      // Open the file picker to select an image file
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowMultiple: false,
+        allowedExtensions: ['jpg', 'jpeg', 'png'],
+      );
 
-void _pickFiles() async {
-  
+      if (result != null) {
+        PlatformFile file = result.files.first;
 
-  try {
-    // Open the file picker to select an image file
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowMultiple: false,
-      allowedExtensions: ['jpg', 'jpeg', 'png'],
-    );
-
-    if (result != null) {
-      PlatformFile file = result.files.first;
-
-      if (file.path != null) {
-        setState(() {
-          _imageBytes = File(file.path!).readAsBytesSync(); // Read file using its path
-          generatedText = "File selected successfully"; // Update UI with success message
-        });
+        if (file.path != null) {
+          setState(() {
+            _imageBytes =
+                File(file.path!).readAsBytesSync(); // Read file using its path
+            generatedText =
+                "File selected successfully"; // Update UI with success message
+          });
+        } else {
+          setState(() {
+            generatedText =
+                "Error: File path is null"; // Handle case where file path is null
+          });
+        }
       } else {
         setState(() {
-          generatedText = "Error: File path is null"; // Handle case where file path is null
+          generatedText =
+              "No file selected"; // Handle case where no file was selected
         });
       }
-    } else {
+    } catch (e) {
       setState(() {
-        generatedText = "No file selected"; // Handle case where no file was selected
+        generatedText = "Error selecting file: $e"; // Handle any exceptions
       });
     }
-  } catch (e) {
-    setState(() {
-      generatedText = "Error selecting file: $e"; // Handle any exceptions
-    });
   }
-}
 
   void _captureImage() async {
     final ImagePicker picker = ImagePicker();
@@ -99,10 +114,16 @@ void _pickFiles() async {
   }
 
   void _generateDiseaseInfo() async {
+    _debugLog('Detect clicked. isLoading=$_isLoading');
+    _debugLog('image selected: ${_imageBytes != null}'
+        '${_imageBytes != null ? ', bytes=${_imageBytes!.length}' : ''}');
+    _debugLog('model initialized: ${_model != null}');
+
     if (_imageBytes == null) {
       setState(() {
         generatedText = "Please select an image first.";
       });
+      _debugLog('Blocked: no image selected.');
       return;
     }
 
@@ -110,6 +131,7 @@ void _pickFiles() async {
       setState(() {
         generatedText = "Model is not initialized. Check your API key.";
       });
+      _debugLog('Blocked: model not initialized.');
       return;
     }
 
@@ -130,6 +152,8 @@ void _pickFiles() async {
       also make it concise
     """;
 
+    _debugLog('Prompt prepared (${prompt.length} chars).');
+
     final content = [
       Content.multi([
         TextPart(prompt),
@@ -138,13 +162,39 @@ void _pickFiles() async {
     ];
 
     try {
-      final response = await _model!.generateContent(content);
+      _debugLog('Calling generateContent...');
+      GenerateContentResponse response;
+      try {
+        response = await _model!.generateContent(content);
+      } catch (e) {
+        // Fallback if the preferred model is not available for this key/API version.
+        final msg = e.toString();
+        if (msg.contains('is not found') || msg.contains('not supported')) {
+          _debugLog(
+              'Preferred model unavailable; falling back to gemini-1.5-flash. Error: $e');
+          final apiKey = dotenv.env['API_KEY'] ?? '';
+          _model = GenerativeModel(
+            model: 'gemini-1.5-flash',
+            apiKey: apiKey,
+            safetySettings: [
+              SafetySetting(HarmCategory.harassment, HarmBlockThreshold.high),
+              SafetySetting(HarmCategory.hateSpeech, HarmBlockThreshold.high),
+            ],
+          );
+          response = await _model!.generateContent(content);
+        } else {
+          rethrow;
+        }
+      }
+
+      _debugPrintAiResponse('DiseaseDetection', response.text);
       setState(() {
         generatedText = response.text ?? "No response generated.";
         _isLoading = false;
       });
       _showBottomSheet();
     } catch (e) {
+      _debugLog('AI call failed: $e');
       setState(() {
         generatedText = "Failed to generate response: $e";
         _isLoading = false;

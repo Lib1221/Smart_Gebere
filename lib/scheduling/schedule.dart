@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -62,6 +63,14 @@ class _CropPlantingScreenState extends State<CropPlantingScreen> {
   String errorMessage = '';
   late GenerativeModel model;
 
+  void _debugPrintAiResponse(String feature, String? text) {
+    if (!kDebugMode) return;
+    final safeText = (text ?? '').trim();
+    final preview =
+        safeText.length > 1200 ? '${safeText.substring(0, 1200)}…' : safeText;
+    debugPrint('[$feature] AI response (${safeText.length} chars):\n$preview');
+  }
+
   @override
   void initState() {
     super.initState();
@@ -71,13 +80,15 @@ class _CropPlantingScreenState extends State<CropPlantingScreen> {
 
   void initializeModel() {
     String apiKey = dotenv.env['API_KEY'] ?? '';
+    final preferredModel = dotenv.env['GEMINI_MODEL'] ?? 'gemini-2.5-flash';
 
     if (apiKey.isEmpty) {
       throw Exception("API Key is missing. Please set it in the .env file.");
     }
 
     model = GenerativeModel(
-      model: 'gemini-1.5-flash-latest',
+      // Prefer the newest model if available; can be overridden via .env (GEMINI_MODEL).
+      model: preferredModel,
       apiKey: apiKey,
       safetySettings: [
         SafetySetting(HarmCategory.harassment, HarmBlockThreshold.high),
@@ -126,7 +137,28 @@ Return the list of dictionaries only. Do not include any additional text or info
       """;
 
       final content = [Content.text(prompt)];
-      final response = await model.generateContent(content);
+      GenerateContentResponse response;
+      try {
+        response = await model.generateContent(content);
+      } catch (e) {
+        final msg = e.toString();
+        if (msg.contains('is not found') || msg.contains('not supported')) {
+          debugPrint('[CropPlan] Preferred model unavailable; falling back to gemini-1.5-flash. Error: $e');
+          final apiKey = dotenv.env['API_KEY'] ?? '';
+          model = GenerativeModel(
+            model: 'gemini-1.5-flash',
+            apiKey: apiKey,
+            safetySettings: [
+              SafetySetting(HarmCategory.harassment, HarmBlockThreshold.high),
+              SafetySetting(HarmCategory.hateSpeech, HarmBlockThreshold.high),
+            ],
+          );
+          response = await model.generateContent(content);
+        } else {
+          rethrow;
+        }
+      }
+      _debugPrintAiResponse('CropPlan', response.text);
 
       if (response.text != null) {
         final List<dynamic> data = jsonDecode(response.text!);

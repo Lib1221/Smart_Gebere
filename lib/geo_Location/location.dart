@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
@@ -6,6 +7,14 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class LocationService {
   GenerativeModel? _model;
+
+  void _debugPrintAiResponse(String feature, String? text) {
+    if (!kDebugMode) return;
+    final safeText = (text ?? '').trim();
+    final preview =
+        safeText.length > 1200 ? '${safeText.substring(0, 1200)}…' : safeText;
+    debugPrint('[$feature] AI response (${safeText.length} chars):\n$preview');
+  }
 
   Future<Map<String, dynamic>> getCurrentLocation() async {
     bool serviceEnabled;
@@ -90,13 +99,15 @@ class LocationService {
 
   void initializeModel() {
     String apiKey = dotenv.env['API_KEY'] ?? '';
+    final preferredModel = dotenv.env['GEMINI_MODEL'] ?? 'gemini-2.5-flash';
 
     if (apiKey.isEmpty) {
       throw Exception("API Key is missing. Please set it in the .env file.");
     }
 
     _model = GenerativeModel(
-      model: 'gemini-1.5-flash-latest',
+      // Prefer the newest model if available; can be overridden via .env (GEMINI_MODEL).
+      model: preferredModel,
       apiKey: apiKey,
       safetySettings: [
         SafetySetting(HarmCategory.harassment, HarmBlockThreshold.high),
@@ -166,8 +177,30 @@ Return the list of dictionaries only. Do not include any additional text or info
     ];
 
     try {
-      final response = await _model!.generateContent(content);
+      GenerateContentResponse response;
+      try {
+        response = await _model!.generateContent(content);
+      } catch (e) {
+        final msg = e.toString();
+        if (msg.contains('is not found') || msg.contains('not supported')) {
+          debugPrint('[CropSuggestions] Preferred model unavailable; falling back to gemini-1.5-flash. Error: $e');
+          final apiKey = dotenv.env['API_KEY'] ?? '';
+          _model = GenerativeModel(
+            model: 'gemini-1.5-flash',
+            apiKey: apiKey,
+            safetySettings: [
+              SafetySetting(HarmCategory.harassment, HarmBlockThreshold.high),
+              SafetySetting(HarmCategory.hateSpeech, HarmBlockThreshold.high),
+            ],
+          );
+          response = await _model!.generateContent(content);
+        } else {
+          rethrow;
+        }
+      }
+
       String? responseText = response.text;
+      _debugPrintAiResponse('CropSuggestions', responseText);
 
       if (responseText!.isEmpty) {
         throw Exception("No response generated.");
