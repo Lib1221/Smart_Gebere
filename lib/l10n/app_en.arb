@@ -1,0 +1,40 @@
+{
+  "@@locale": "en",
+  "appName": "Smart Gebere",
+  "logout": "Logout",
+  "settings": "Settings",
+  "confirmLogoutTitle": "Confirm Logout",
+  "confirmLogoutBody": "Are you sure you want to log out?",
+  "cancel": "Cancel",
+  "createTask": "Create Task",
+  "createdTasks": "Created Tasks",
+  "expectedEvents": "Expected Events",
+
+  "welcomeToApp": "Welcome to Smart Gebere",
+  "tagline": "Empowering Farmers with Smart Solutions",
+  "createAccount": "Create Account",
+  "firstName": "First Name",
+  "lastName": "Last Name",
+  "country": "Country",
+  "phoneNumber": "Phone Number",
+  "email": "Email",
+  "password": "Password",
+  "confirmPassword": "Confirm Password",
+  "signUp": "Sign Up",
+  "alreadyHaveAccount": "Already have an account?",
+  "login": "Login",
+  "dontHaveAccount": "Don't have an account?",
+
+  "language": "Language",
+  "languageEnglish": "English",
+  "languageAmharic": "Amharic",
+  "languageAfanOromo": "Afaan Oromo",
+  "save": "Save",
+
+  "noCropData": "No crop data available.",
+  "lookSchedule": "Look Schedule",
+
+  "aiRespondIn": "Respond in {language}."
+}
+
+

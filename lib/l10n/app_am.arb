@@ -1,0 +1,40 @@
+{
+  "@@locale": "am",
+  "appName": "ስማርት ገበሬ",
+  "logout": "ውጣ",
+  "settings": "ቅንብሮች",
+  "confirmLogoutTitle": "መውጣት አረጋግጥ",
+  "confirmLogoutBody": "በእርግጥ መውጣት ትፈልጋለህ?",
+  "cancel": "ሰርዝ",
+  "createTask": "ተግባር ፍጠር",
+  "createdTasks": "የተፈጠሩ ተግባሮች",
+  "expectedEvents": "የሚጠበቁ ክስተቶች",
+
+  "welcomeToApp": "እንኳን ወደ ስማርት ገበሬ በደህና መጣህ",
+  "tagline": "ገበሬዎችን በስማርት መፍትሄዎች ማበረታታት",
+  "createAccount": "መለያ ፍጠር",
+  "firstName": "ስም",
+  "lastName": "የአባት ስም",
+  "country": "ሀገር",
+  "phoneNumber": "ስልክ ቁጥር",
+  "email": "ኢሜይል",
+  "password": "የይለፍ ቃል",
+  "confirmPassword": "የይለፍ ቃል አረጋግጥ",
+  "signUp": "ይመዝገቡ",
+  "alreadyHaveAccount": "መለያ አለህ?",
+  "login": "ግባ",
+  "dontHaveAccount": "መለያ የለህም?",
+
+  "language": "ቋንቋ",
+  "languageEnglish": "እንግሊዝኛ",
+  "languageAmharic": "አማርኛ",
+  "languageAfanOromo": "አፋን ኦሮሞ",
+  "save": "አስቀምጥ",
+
+  "noCropData": "የሰብል መረጃ አልተገኘም።",
+  "lookSchedule": "መርሃ ግብር ተመልከት",
+
+  "aiRespondIn": "በ{language} ቋንቋ መልስ።"
+}
+
+

@@ -32,10 +32,7 @@ class StreamProviderClass extends StatelessWidget {
     return StreamProvider<UserModel?>.value(
       value: AuthService().user,
       initialData: null,
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Wrapper(),
-      ),
+      child: Wrapper(),
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smart_gebere/Home/Home.dart';
 import 'package:smart_gebere/auth/login/login.dart'; // Import the LoginPage for navigation
+import 'package:smart_gebere/l10n/app_localizations.dart';
 
 class SignupPage extends StatefulWidget {
   @override
@@ -33,6 +34,7 @@ class _SignupPageState extends State<SignupPage>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -62,7 +64,7 @@ class _SignupPageState extends State<SignupPage>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Welcome to Smart Gebere",
+                        l10n.welcomeToApp,
                         style: GoogleFonts.poppins(
                           textStyle: const TextStyle(
                             fontSize: 28,
@@ -76,7 +78,7 @@ class _SignupPageState extends State<SignupPage>
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    "Empowering Farmers with Smart Solutions",
+                    l10n.tagline,
                     style: GoogleFonts.poppins(
                       textStyle: const TextStyle(
                         fontSize: 16,
@@ -95,7 +97,7 @@ class _SignupPageState extends State<SignupPage>
                     padding: const EdgeInsets.symmetric(
                         vertical: 10, horizontal: 20),
                     child: Text(
-                      "Create Account",
+                      l10n.createAccount,
                       style: GoogleFonts.lobster(
                         textStyle: const TextStyle(
                           fontSize: 36,
@@ -120,13 +122,13 @@ class _SignupPageState extends State<SignupPage>
                           children: [
                             _buildTextField(
                               controller: _firstNameController,
-                              label: "First Name",
+                              label: l10n.firstName,
                               icon: Icons.person,
                             ),
                             const SizedBox(height: 16),
                             _buildTextField(
                               controller: _lastNameController,
-                              label: "Last Name",
+                              label: l10n.lastName,
                               icon: Icons.person_outline,
                             ),
                             const SizedBox(height: 16),
@@ -134,26 +136,26 @@ class _SignupPageState extends State<SignupPage>
                             const SizedBox(height: 16),
                             _buildTextField(
                               controller: _phoneController,
-                              label: "Phone Number",
+                              label: l10n.phoneNumber,
                               icon: Icons.phone,
                             ),
                             const SizedBox(height: 16),
                             _buildTextField(
                               controller: _emailController,
-                              label: "Email",
+                              label: l10n.email,
                               icon: Icons.email,
                             ),
                             const SizedBox(height: 16),
                             _buildTextField(
                               controller: _passwordController,
-                              label: "Password",
+                              label: l10n.password,
                               icon: Icons.lock,
                               isPassword: true,
                             ),
                             const SizedBox(height: 16),
                             _buildTextField(
                               controller: _confirmPasswordController,
-                              label: "Confirm Password",
+                              label: l10n.confirmPassword,
                               icon: Icons.lock_outline,
                               isPassword: true,
                             ),
@@ -201,7 +203,7 @@ class _SignupPageState extends State<SignupPage>
                                                   Colors.white),
                                         )
                                       : Text(
-                                          "Sign Up",
+                                          l10n.signUp,
                                           style: GoogleFonts.poppins(
                                             textStyle: const TextStyle(
                                               fontSize: 18,
@@ -218,7 +220,7 @@ class _SignupPageState extends State<SignupPage>
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  "Already have an account? ",
+                                  "${l10n.alreadyHaveAccount} ",
                                   style: GoogleFonts.poppins(
                                     textStyle: const TextStyle(
                                       fontSize: 14,
@@ -235,7 +237,7 @@ class _SignupPageState extends State<SignupPage>
                                     );
                                   },
                                   child: Text(
-                                    "Login",
+                                    l10n.login,
                                     style: GoogleFonts.poppins(
                                       textStyle: TextStyle(
                                         fontSize: 14,
@@ -296,7 +298,7 @@ class _SignupPageState extends State<SignupPage>
       initialValue: _selectedCountry,
       enabled: false,
       decoration: InputDecoration(
-        labelText: "Country",
+        labelText: AppLocalizations.of(context).country,
         prefixIcon: Icon(Icons.public, color: Colors.green.shade700),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15.0),

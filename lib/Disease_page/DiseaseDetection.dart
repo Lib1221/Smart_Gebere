@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:smart_gebere/l10n/app_localizations.dart';
 
 class ImageAnalyzer extends StatefulWidget {
   @override
@@ -325,10 +326,11 @@ class ImageAnalyzerState extends State<ImageAnalyzer> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Disease Detection',
+        title: Text(
+          l10n.diseaseDetection,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 22,
@@ -385,8 +387,8 @@ class ImageAnalyzerState extends State<ImageAnalyzer> {
                 ElevatedButton.icon(
                   onPressed: _pickFiles,
                   icon: const Icon(Icons.folder_open, size: 28),
-                  label: const Text(
-                    'File Manager',
+                  label: Text(
+                    l10n.fileManager,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
@@ -404,8 +406,8 @@ class ImageAnalyzerState extends State<ImageAnalyzer> {
                 ElevatedButton.icon(
                   onPressed: _captureImage,
                   icon: const Icon(Icons.camera_alt, size: 28),
-                  label: const Text(
-                    'Camera',
+                  label: Text(
+                    l10n.camera,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
@@ -441,8 +443,8 @@ class ImageAnalyzerState extends State<ImageAnalyzer> {
                             strokeWidth: 3.0,
                           ),
                         )
-                      : const Text(
-                          'Detect',
+                      : Text(
+                          l10n.detect,
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),

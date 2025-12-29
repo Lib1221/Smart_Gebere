@@ -5,16 +5,20 @@ import 'package:smart_gebere/Home/created_task.dart';
 import 'package:smart_gebere/Home/expected_event.dart';
 import 'package:smart_gebere/Home/task_creation.dart';
 import 'package:smart_gebere/auth/login/login.dart';
+import 'package:smart_gebere/settings/settings_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:smart_gebere/l10n/app_localizations.dart';
 
 class Home_Screen extends StatelessWidget {
   const Home_Screen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Smart Gebere',
+        title: Text(
+          l10n.appName,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 22,
@@ -33,26 +37,35 @@ class Home_Screen extends StatelessWidget {
         elevation: 5,
         actions: [
           IconButton(
+            icon: const Icon(Icons.settings, color: Colors.white),
+            tooltip: l10n.settings,
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SettingsPage()),
+              );
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
-            tooltip: 'Logout',
+            tooltip: l10n.logout,
             onPressed: () async {
               bool confirmLogout = await showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: const Text("Confirm Logout"),
-                    content: const Text("Are you sure you want to log out?"),
+                    title: Text(l10n.confirmLogoutTitle),
+                    content: Text(l10n.confirmLogoutBody),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(false),
-                        child: const Text("Cancel"),
+                        child: Text(l10n.cancel),
                       ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
                         ),
                         onPressed: () => Navigator.of(context).pop(true),
-                        child: const Text("Logout"),
+                        child: Text(l10n.logout),
                       ),
                     ],
                   );
@@ -60,8 +73,11 @@ class Home_Screen extends StatelessWidget {
               );
 
               if (confirmLogout == true) {
-                Navigator.of(context).pushReplacement(
+                await FirebaseAuth.instance.signOut();
+                if (!context.mounted) return;
+                Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => LoginPage()),
+                  (route) => false,
                 );
               }
             },
@@ -103,7 +119,7 @@ class Home_Screen extends StatelessWidget {
                         ),
                         child: Column(
                           children: [
-                            SectionHeader(title: 'Create Task', bgColor: Colors.green.shade100),
+                            SectionHeader(title: l10n.createTask, bgColor: Colors.green.shade100),
                             const TaskCreationSection(),
                           ],
                         ),
@@ -130,7 +146,7 @@ class Home_Screen extends StatelessWidget {
                         ),
                         child: Column(
                           children: [
-                            SectionHeader(title: 'Created Tasks', bgColor: Colors.green.shade100),
+                            SectionHeader(title: l10n.createdTasks, bgColor: Colors.green.shade100),
                             const SizedBox(height: 10),
                             Expanded(child: SlideableCreatedTasks()),
                           ],
@@ -158,7 +174,7 @@ class Home_Screen extends StatelessWidget {
                         padding: const EdgeInsets.all(10),
                         child: Column(
                           children: [
-                            SectionHeader(title: 'Expected Events', bgColor: Colors.green.shade100),
+                            SectionHeader(title: l10n.expectedEvents, bgColor: Colors.green.shade100),
                             const SizedBox(height: 10),
                             const Expanded(child: SlideableExpectedEvents()),
                           ],

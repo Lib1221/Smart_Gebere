@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:smart_gebere/Home/cropdetailpage.dart';
 import 'package:smart_gebere/geo_Location/wetherdata.dart';
+import 'package:smart_gebere/l10n/app_localizations.dart';
 
 class SlideableCreatedTasks extends StatefulWidget {
   @override
@@ -146,9 +147,10 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
   }
 
   Widget _buildEmptyState() {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Text(
-        'No crops found. Please add crops.',
+        l10n.noCropsFound,
         style: TextStyle(fontSize: 18, color: Colors.green.shade700),
       ),
     );
@@ -211,7 +213,7 @@ class _SlideableCreatedTasksState extends State<SlideableCreatedTasks> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      'Days: $daysSincePlanted',
+                      '${AppLocalizations.of(context).days}: $daysSincePlanted',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,

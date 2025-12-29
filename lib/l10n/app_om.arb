@@ -1,0 +1,40 @@
+{
+  "@@locale": "om",
+  "appName": "Smart Gebere",
+  "logout": "Ba'i",
+  "settings": "Qindaa'ina",
+  "confirmLogoutTitle": "Ba'uu Mirkaneessi",
+  "confirmLogoutBody": "Dhugumaan keessaa ba'uu barbaaddaa?",
+  "cancel": "Haqi",
+  "createTask": "Hojii Uumi",
+  "createdTasks": "Hojii Uumaman",
+  "expectedEvents": "Taateewwan Eegaman",
+
+  "welcomeToApp": "Baga nagaan gara Smart Gebere dhuftan",
+  "tagline": "Qonnaan bultoota furmaata smart ta'een jabeessuu",
+  "createAccount": "Herrega Uumi",
+  "firstName": "Maqaa",
+  "lastName": "Maqaa Abbaa",
+  "country": "Biyya",
+  "phoneNumber": "Lakkoofsa Bilbilaa",
+  "email": "Iimeelii",
+  "password": "Jecha Darbii",
+  "confirmPassword": "Jecha Darbii Mirkaneessi",
+  "signUp": "Galmaa'i",
+  "alreadyHaveAccount": "Herrega qabdaa?",
+  "login": "Seeni",
+  "dontHaveAccount": "Herrega hin qabduu?",
+
+  "language": "Afaan",
+  "languageEnglish": "English",
+  "languageAmharic": "Afaan Amaaraa",
+  "languageAfanOromo": "Afaan Oromo",
+  "save": "Olkaa'i",
+
+  "noCropData": "Odeeffannoon midhaanii hin jiru.",
+  "lookSchedule": "Sagantaa Ilaali",
+
+  "aiRespondIn": "Afaan {language}tiin deebisi."
+}
+
+

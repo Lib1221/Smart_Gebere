@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smart_gebere/Home/Home.dart';
 import 'package:smart_gebere/auth/signup/sign_up.dart';
+import 'package:smart_gebere/l10n/app_localizations.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -39,6 +40,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: FadeTransition(
@@ -72,7 +74,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                       child: Text(
-                        "Welcome to\nSmart Gebere",
+                        "Welcome to\n${l10n.appName}",
                         style: GoogleFonts.lobster(
                           textStyle: const TextStyle(
                             fontSize: 36,
@@ -92,7 +94,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
                       child: Text(
-                        "Empowering Farmers with Smart Solutions",
+                        l10n.tagline,
                         style: GoogleFonts.poppins(
                           textStyle: const TextStyle(
                             fontSize: 16,
@@ -116,13 +118,13 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                             children: [
                               _buildTextField(
                                 controller: _usernameController,
-                                label: "Username",
+                                label: l10n.email,
                                 icon: Icons.person,
                               ),
                               const SizedBox(height: 16),
                               _buildTextField(
                                 controller: _passwordController,
-                                label: "Password",
+                                label: l10n.password,
                                 icon: Icons.lock,
                                 isPassword: true,
                               ),
@@ -164,7 +166,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                                                 Colors.white),
                                           )
                                         : Text(
-                                            "Login",
+                                            l10n.login,
                                             style: GoogleFonts.poppins(
                                               textStyle: const TextStyle(
                                                 fontSize: 18,
@@ -180,7 +182,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    "Don't have an account?",
+                                    l10n.dontHaveAccount,
                                     style: GoogleFonts.poppins(
                                       textStyle: const TextStyle(
                                           fontSize: 14, color: Colors.grey),
@@ -196,7 +198,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                                       );
                                     },
                                     child: Text(
-                                      "Sign Up",
+                                      l10n.signUp,
                                       style: GoogleFonts.poppins(
                                         textStyle: TextStyle(
                                           fontSize: 14,

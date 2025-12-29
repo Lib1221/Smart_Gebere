@@ -9,6 +9,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:smart_gebere/Home/Home.dart';
 import 'package:timeline_tile/timeline_tile.dart';
+import 'package:smart_gebere/settings/locale_store.dart';
+import 'package:smart_gebere/l10n/app_localizations.dart';
 
 class WeekTask {
   final int week;
@@ -26,14 +28,29 @@ class WeekTask {
   });
 
   factory WeekTask.fromJson(Map<String, dynamic> json) {
+    List<String> toStringList(dynamic v) {
+      if (v is List) return v.map((e) => e.toString()).toList();
+      return const [];
+    }
+
+    int toInt(dynamic v) {
+      if (v is int) return v;
+      if (v is num) return v.round();
+      return int.tryParse(v?.toString() ?? '') ?? 0;
+    }
+
+    DateTime toDateTime(dynamic v) {
+      if (v is Timestamp) return v.toDate();
+      if (v is String) return DateTime.tryParse(v) ?? DateTime.now();
+      return DateTime.now();
+    }
+
     return WeekTask(
-      week: json['week'],
-      dateRange: List<String>.from(json['date_range']),
-      stage: json['stage'],
-      tasks: List<String>.from(json['tasks']),
-      createdAt: (json['created_at'] != null)
-          ? (json['created_at'] as Timestamp).toDate()
-          : DateTime.now(),
+      week: toInt(json['week']),
+      dateRange: toStringList(json['date_range']),
+      stage: (json['stage'] ?? '').toString(),
+      tasks: toStringList(json['tasks']),
+      createdAt: toDateTime(json['created_at']),
     );
   }
 
@@ -97,12 +114,25 @@ class _CropPlantingScreenState extends State<CropPlantingScreen> {
     );
   }
 
+  Future<String> _aiLanguageName() async {
+    final code = normalizeLocaleCode(await getLocaleStore().readLocaleCode());
+    switch (code) {
+      case 'am':
+        return 'Amharic';
+      case 'om':
+        return 'Afaan Oromo';
+      default:
+        return 'English';
+    }
+  }
+
   Future<void> fetchWeekTasks(String crop) async {
     try {
       final apiKey = dotenv.env['API_KEY'] ?? "";
       if (apiKey.isEmpty) throw Exception("API Key is missing!");
 
       DateTime now = DateTime.now();
+      final language = await _aiLanguageName();
       String prompt = """
       You are an advanced agricultural assistant. Provide a week-by-week planting guide for **$crop** based on today's date **$now**. 
       Ensure the output is **valid JSON format**, free from errors, markdown, or extra text. 
@@ -134,6 +164,8 @@ Return the list of dictionaries only. Do not include any additional text or info
       Return a pure list of dictionaries.
       also don't include any markdown text
       don't add before and after from it only return the list and dictionaries
+
+Respond in $language.
       """;
 
       final content = [Content.text(prompt)];
@@ -162,14 +194,19 @@ Return the list of dictionaries only. Do not include any additional text or info
 
       if (response.text != null) {
         final List<dynamic> data = jsonDecode(response.text!);
+        if (!mounted) return;
         setState(() {
-          weekTasks = data.map((task) => WeekTask.fromJson(task)).toList();
+          weekTasks = data
+              .whereType<Map>()
+              .map((task) => WeekTask.fromJson(Map<String, dynamic>.from(task)))
+              .toList();
           isLoading = false;
         });
       } else {
         throw Exception("Empty response from AI model");
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         errorMessage = "Error fetching data: ${e.toString()}";
         isLoading = false;
@@ -179,17 +216,18 @@ Return the list of dictionaries only. Do not include any additional text or info
 
   Future<void> storeFarmingGuideForUser(
       List<WeekTask> farmingGuide, String cropName) async {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       barrierDismissible: true,
       builder: (context) {
-        return const AlertDialog(
+        return AlertDialog(
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 10),
-              Text("Uploading data... Please wait"),
+              const CircularProgressIndicator(),
+              const SizedBox(height: 10),
+              Text(l10n.uploadingPleaseWait),
             ],
           ),
         );
@@ -199,7 +237,7 @@ Return the list of dictionaries only. Do not include any additional text or info
     try {
       User? user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        Navigator.pop(context);
+        if (mounted) Navigator.pop(context);
         _showSuccessPopup(
             "No authenticated user found. Please log in and try again.",
             "Authentication Error");
@@ -223,11 +261,11 @@ Return the list of dictionaries only. Do not include any additional text or info
         'crops': FieldValue.arrayUnion([cropDataMap]),
       }, SetOptions(merge: true));
 
-      Navigator.pop(context);
+      if (mounted) Navigator.pop(context);
       _showSuccessPopup(
           "You successfully uploaded your data for $cropName.", "Success ✅");
     } catch (e) {
-      Navigator.pop(context);
+      if (mounted) Navigator.pop(context);
       _showSuccessPopup(
           "Failed to store data due to an error. Please try again later.\nError: $e",
           "Upload Failed ❌");
@@ -235,6 +273,7 @@ Return the list of dictionaries only. Do not include any additional text or info
   }
 
   void _showSuccessPopup(String message, String title) {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -244,7 +283,7 @@ Return the list of dictionaries only. Do not include any additional text or info
           content: Text(message),
           actions: <Widget>[
             TextButton(
-              child: const Text('OK'),
+              child: Text(l10n.ok),
               onPressed: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -260,24 +299,25 @@ Return the list of dictionaries only. Do not include any additional text or info
   }
 
   void _showConfirmationDialog() {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Plant It?'),
-        content: const Text('Do you agree to proceed with planting this crop?'),
+        title: Text(l10n.plantItQuestionTitle),
+        content: Text(l10n.plantItQuestionBody),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            child: const Text('Disagree'),
+            child: Text(l10n.disagree),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               storeFarmingGuideForUser(weekTasks, widget.crop);
             },
-            child: const Text('Agree'),
+            child: Text(l10n.agree),
           ),
         ],
       ),
@@ -286,9 +326,10 @@ Return the list of dictionaries only. Do not include any additional text or info
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.crop} Planting Guide'),
+        title: Text('${widget.crop} ${l10n.plantingGuide}'),
         backgroundColor: Colors.green[600],
       ),
       body: isLoading
@@ -318,7 +359,7 @@ Return the list of dictionaries only. Do not include any additional text or info
                           ),
                         ),
                         child: Text(
-                          'Plant It',
+                          l10n.plantIt,
                           style: GoogleFonts.poppins(
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
@@ -356,7 +397,7 @@ Return the list of dictionaries only. Do not include any additional text or info
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Week ${task.week}: ${task.stage}',
+                                      '${l10n.week} ${task.week}: ${task.stage}',
                                       style: GoogleFonts.poppins(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,

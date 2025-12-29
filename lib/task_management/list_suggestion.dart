@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:smart_gebere/Loading/loading.dart';
 import 'package:smart_gebere/geo_Location/location.dart';
 import 'package:smart_gebere/scheduling/schedule.dart';
+import 'package:smart_gebere/l10n/app_localizations.dart';
 
 class CropListPage extends StatefulWidget {
   @override
@@ -12,6 +14,33 @@ class _CropListPageState extends State<CropListPage> {
   final LocationService locationService = LocationService();
   List<Map<String, dynamic>> crops = [];
   bool isLoading = false;
+
+  String _asString(dynamic v) {
+    if (v == null) return '';
+    if (v is String) return v;
+    // If AI returns nested JSON (Map/List), keep it readable instead of crashing.
+    try {
+      if (v is Map || v is List) return jsonEncode(v);
+    } catch (_) {}
+    return v.toString();
+  }
+
+  int _asInt(dynamic v) {
+    if (v == null) return 0;
+    if (v is int) return v;
+    if (v is num) return v.round();
+    return int.tryParse(v.toString()) ?? 0;
+  }
+
+  Map<String, dynamic> _normalizeCrop(Map<String, dynamic> raw) {
+    // Ensure the fields used by `CropCard` are the expected types.
+    return {
+      'name': _asString(raw['name']),
+      'description': _asString(raw['description']),
+      'suitability': _asInt(raw['suitability']),
+      'details': _asString(raw['details']),
+    };
+  }
 
   Future<void> fetchCropSuggestions() async {
     if (!mounted) return; 
@@ -27,7 +56,7 @@ class _CropListPageState extends State<CropListPage> {
 
       if (mounted) {
         setState(() {
-          crops = suggestions;
+          crops = suggestions.map(_normalizeCrop).toList();
         });
       }
     } catch (e) {
@@ -51,12 +80,13 @@ class _CropListPageState extends State<CropListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return isLoading
         ? LoadingPage() 
         : Scaffold(
             appBar: AppBar(
-              title: const Text(
-                'Smart Gebere',
+              title: Text(
+                l10n.appName,
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
               ),
               centerTitle: true,
@@ -64,17 +94,18 @@ class _CropListPageState extends State<CropListPage> {
               elevation: 5,
             ),
             body: crops.isEmpty
-                ? const Center(child: Text("No crop data available."))
+                ? Center(child: Text(l10n.noCropData))
                 : ListView.builder(
                     padding: const EdgeInsets.all(8.0),
                     itemCount: crops.length,
                     itemBuilder: (context, index) {
+                      final crop = crops[index];
                       return CropCard(
-                        name: crops[index]['name'],
-                        description: crops[index]['description'],
-                        suitability: crops[index]['suitability'],
-                        details: crops[index]['details'], 
-                        crop: crops[index]['name'],
+                        name: crop['name'] as String,
+                        description: crop['description'] as String,
+                        suitability: crop['suitability'] as int,
+                        details: crop['details'] as String,
+                        crop: crop['name'] as String,
                       );
                     },
                   ),
@@ -222,8 +253,8 @@ class _CropCardState extends State<CropCard> {
                                   )),
                         );
                       },
-                      child: const Text(
-                        "Look Schedule",
+                      child: Text(
+                        AppLocalizations.of(context).lookSchedule,
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),

@@ -4,6 +4,7 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:smart_gebere/settings/locale_store.dart';
 
 class LocationService {
   GenerativeModel? _model;
@@ -116,6 +117,18 @@ class LocationService {
     );
   }
 
+  Future<String> _aiLanguageName() async {
+    final code = normalizeLocaleCode(await getLocaleStore().readLocaleCode());
+    switch (code) {
+      case 'am':
+        return 'Amharic';
+      case 'om':
+        return 'Afaan Oromo';
+      default:
+        return 'English';
+    }
+  }
+
   Future<List<Map<String, dynamic>>> generateCropSuggestions(
       Map<String, dynamic> locationData) async {
     if (_model == null) {
@@ -124,6 +137,7 @@ class LocationService {
 
     Map<String, dynamic> locationData = await getCurrentLocation();
     DateTime now = DateTime.now();
+    final language = await _aiLanguageName();
     String prompt = """
 Based on the following location data, provide a **detailed** and **well-researched** list of the most suitable crops for cultivation in this area. 
 also analyse from these  ${now} extract data and and from location you could know the exact location then analyse in which season are in now
@@ -170,6 +184,8 @@ Return a **list of dictionaries**, where each dictionary contains the following 
 don't make it markdown text
 
 Return the list of dictionaries only. Do not include any additional text or information before or after the list.
+
+${'Respond in $language.'}
 """;
 
     final content = [
