@@ -60,6 +60,23 @@ dependencies:
   flutter_image_compress: ^2.3.0
   # Path provider for file storage
   path_provider: ^2.1.5
+  
+  # ============ ENTERPRISE ENHANCEMENTS ============
+  # Dependency Injection
+  get_it: ^7.6.7
+  
+  # Functional Programming (Either type for error handling)
+  dartz: ^0.10.1
+  
+  # Secure Storage
+  flutter_secure_storage: ^9.2.2
+  
+  # Firebase Monitoring & Analytics
+  firebase_crashlytics: ^4.0.4
+  firebase_analytics: ^11.3.3
+  
+  # Logging
+  logger: ^2.4.0
 
 
   
@@ -73,6 +90,11 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
+  
+  # ============ TESTING ============
+  mockito: ^5.4.4
+  mocktail: ^1.0.4
+  fake_cloud_firestore: ^3.1.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -1,0 +1,246 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  FLUTTER_VERSION: '3.16.0'
+
+jobs:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Code Quality Checks
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  analyze:
+    name: Analyze & Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: Smart_Gebere
+      
+      - name: Check formatting
+        run: dart format --set-exit-if-changed .
+        working-directory: Smart_Gebere
+      
+      - name: Analyze code
+        run: flutter analyze --fatal-infos
+        working-directory: Smart_Gebere
+      
+      - name: Check for outdated dependencies
+        run: flutter pub outdated
+        working-directory: Smart_Gebere
+        continue-on-error: true
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Unit & Widget Tests
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: analyze
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: Smart_Gebere
+      
+      - name: Run tests with coverage
+        run: flutter test --coverage
+        working-directory: Smart_Gebere
+      
+      - name: Check coverage threshold
+        run: |
+          COVERAGE=$(lcov --summary coverage/lcov.info 2>/dev/null | grep "lines......" | sed 's/.*: //' | sed 's/%.*//')
+          echo "Coverage: $COVERAGE%"
+          if (( $(echo "$COVERAGE < 50" | bc -l) )); then
+            echo "::warning::Coverage is below 50% threshold"
+          fi
+        working-directory: Smart_Gebere
+        continue-on-error: true
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: Smart_Gebere/coverage/lcov.info
+          fail_ci_if_error: false
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Build Android
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: Smart_Gebere
+      
+      - name: Create .env file
+        run: |
+          echo "API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
+          echo "OPENWEATHER_API_KEY=${{ secrets.OPENWEATHER_API_KEY }}" >> .env
+          echo "GEMINI_MODEL=gemini-1.5-flash" >> .env
+        working-directory: Smart_Gebere
+      
+      - name: Build APK (Debug)
+        if: github.ref == 'refs/heads/develop'
+        run: flutter build apk --debug
+        working-directory: Smart_Gebere
+      
+      - name: Build APK (Release)
+        if: github.ref == 'refs/heads/main'
+        run: flutter build apk --release
+        working-directory: Smart_Gebere
+      
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-${{ github.ref == 'refs/heads/main' && 'release' || 'debug' }}
+          path: Smart_Gebere/build/app/outputs/flutter-apk/*.apk
+          retention-days: 7
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Build Web
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  build-web:
+    name: Build Web
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: Smart_Gebere
+      
+      - name: Create .env file
+        run: |
+          echo "API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
+          echo "OPENWEATHER_API_KEY=${{ secrets.OPENWEATHER_API_KEY }}" >> .env
+        working-directory: Smart_Gebere
+      
+      - name: Build Web
+        run: flutter build web --release --web-renderer canvaskit
+        working-directory: Smart_Gebere
+      
+      - name: Upload Web artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: Smart_Gebere/build/web
+          retention-days: 7
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Deploy to Firebase Hosting
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  deploy-web:
+    name: Deploy to Firebase Hosting
+    runs-on: ubuntu-latest
+    needs: build-web
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download web build
+        uses: actions/download-artifact@v4
+        with:
+          name: web-build
+          path: Smart_Gebere/build/web
+      
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          channelId: live
+          projectId: smart-gebere
+        env:
+          FIREBASE_CLI_PREVIEWS: hostingchannels
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Security Scan
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: analyze
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Run security scan
+        run: |
+          # Check for sensitive data in code
+          echo "Checking for potential secrets..."
+          if grep -r "api_key\s*=" --include="*.dart" Smart_Gebere/lib/ 2>/dev/null | grep -v "dotenv"; then
+            echo "::warning::Potential hardcoded API key found"
+          fi
+          
+          # Check for debug flags
+          if grep -r "kDebugMode\s*?\s*true" --include="*.dart" Smart_Gebere/lib/ 2>/dev/null; then
+            echo "::warning::Debug mode check found in production code"
+          fi
+          
+          echo "Security scan complete"
+        continue-on-error: true
+

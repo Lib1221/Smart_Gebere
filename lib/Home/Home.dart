@@ -23,7 +23,9 @@ import 'package:smart_gebere/Disease_page/DiseaseDetection.dart' as disease;
 import 'package:smart_gebere/task_management/descrition.dart';
 import 'package:smart_gebere/core/services/connectivity_service.dart';
 import 'package:smart_gebere/core/services/offline_storage.dart';
+import 'package:smart_gebere/core/services/weather_service.dart';
 import 'package:smart_gebere/l10n/app_localizations.dart';
+import 'package:smart_gebere/Home/widgets/animated_hero_section.dart';
 
 class Home_Screen extends StatefulWidget {
   const Home_Screen({super.key});
@@ -63,11 +65,14 @@ class _Home_ScreenState extends State<Home_Screen>
   }
 
   Future<void> _loadDashboardData() async {
-    // Load cached weather
-    final weather = OfflineStorage.getCachedWeather('current');
-    if (weather != null && mounted) {
-      setState(() => _weatherData = weather);
+    // Load cached weather first for instant display
+    final cachedWeather = OfflineStorage.getCachedWeather('current');
+    if (cachedWeather != null && mounted) {
+      setState(() => _weatherData = cachedWeather);
     }
+
+    // Fetch fresh weather in background
+    _fetchWeatherData();
 
     // Load task count from Firestore
     final userId = FirebaseAuth.instance.currentUser?.uid;
@@ -104,6 +109,42 @@ class _Home_ScreenState extends State<Home_Screen>
     } else {
       setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _fetchWeatherData() async {
+    try {
+      final weather = await WeatherService.instance.getCurrentWeather();
+      if (mounted) {
+        setState(() => _weatherData = weather);
+      }
+    } catch (e) {
+      debugPrint('[Home] Error fetching weather: $e');
+      // Weather display will show '--' if no data available
+    }
+  }
+
+  String _getWeatherTemperature() {
+    if (_weatherData == null) return '--°C';
+    final temp = _weatherData!['current']?['temperature_2m'];
+    if (temp == null) return '--°C';
+    return '${temp.toStringAsFixed(0)}°C';
+  }
+
+  IconData _getWeatherIcon() {
+    if (_weatherData == null) return Icons.wb_sunny;
+    final condition = (_weatherData!['condition'] ?? '').toString().toLowerCase();
+    if (condition.contains('rain') || condition.contains('drizzle')) {
+      return Icons.water_drop;
+    } else if (condition.contains('cloud') || condition.contains('overcast')) {
+      return Icons.cloud;
+    } else if (condition.contains('fog')) {
+      return Icons.foggy;
+    } else if (condition.contains('thunder')) {
+      return Icons.thunderstorm;
+    } else if (condition.contains('snow')) {
+      return Icons.ac_unit;
+    }
+    return Icons.wb_sunny;
   }
 
   @override
@@ -172,156 +213,14 @@ class _Home_ScreenState extends State<Home_Screen>
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
       slivers: [
-        // Custom App Bar with Agriculture Image
-        SliverAppBar(
-          expandedHeight: 220,
-          floating: false,
-          pinned: true,
-          backgroundColor: const Color(0xFF2E7D32),
-          leading: Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.menu, color: Colors.white),
-              onPressed: () => Scaffold.of(context).openDrawer(),
-            ),
-          ),
-          actions: [
-            if (!connectivity.isOnline)
-              Container(
-                margin: const EdgeInsets.only(right: 4),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.cloud_off, color: Colors.orange, size: 16),
-                    SizedBox(width: 4),
-                    Text('Offline',
-                        style: TextStyle(color: Colors.orange, fontSize: 12)),
-                  ],
-                ),
-              ),
-            IconButton(
-              icon: const Icon(Icons.notifications_outlined, color: Colors.white),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: const Icon(Icons.settings_outlined, color: Colors.white),
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const SettingsPage()),
-              ),
-            ),
-          ],
-          flexibleSpace: FlexibleSpaceBar(
-            background: Stack(
-              fit: StackFit.expand,
-              children: [
-                // Background gradient
-                Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Color(0xFF1B5E20), Color(0xFF4CAF50)],
-                    ),
-                  ),
-                ),
-                // Agriculture pattern overlay
-                Positioned.fill(
-                  child: CustomPaint(
-                    painter: _FarmPatternPainter(),
-                  ),
-                ),
-                // User greeting
-                SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Row(
-                          children: [
-                            // Animated avatar with plant icon
-                            Container(
-                              padding: const EdgeInsets.all(3),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2),
-                              ),
-                              child: CircleAvatar(
-                                radius: 28,
-                                backgroundColor: Colors.white.withOpacity(0.2),
-                                child: Text(
-                                  (user?.displayName?.isNotEmpty == true)
-                                      ? user!.displayName![0].toUpperCase()
-                                      : '🌾',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    _getGreeting(),
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.white70,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  Text(
-                                    user?.displayName ?? 'Farmer',
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.white,
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // Weather mini card
-                            if (_weatherData != null)
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Column(
-                                  children: [
-                                    const Icon(Icons.wb_sunny,
-                                        color: Colors.amber, size: 24),
-                                    Text(
-                                      '${_weatherData!['current']?['temperature_2m'] ?? '--'}°',
-                                      style: GoogleFonts.poppins(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+        // ═══════════════════════════════════════════════════════════════
+        // Stunning Animated Hero Section
+        // ═══════════════════════════════════════════════════════════════
+        AnimatedHeroSection(
+          weatherData: _weatherData,
+          getGreeting: _getGreeting,
+          getWeatherTemperature: _getWeatherTemperature,
+          connectivity: connectivity,
         ),
 
         // Dashboard Content
@@ -415,14 +314,18 @@ class _Home_ScreenState extends State<Home_Screen>
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _buildEnhancedStatCard(
-            icon: Icons.wb_sunny,
-            label: 'Weather',
-            value: _weatherData != null
-                ? '${_weatherData!['current']?['temperature_2m'] ?? '--'}°'
-                : '--°',
-            color: const Color(0xFFFF9800),
-            gradient: [const Color(0xFFFFB74D), const Color(0xFFFB8C00)],
+          child: GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const WeatherAdvisorPage()),
+            ),
+            child: _buildEnhancedStatCard(
+              icon: _getWeatherIcon(),
+              label: (_weatherData?['condition'] as String?) ?? 'Weather',
+              value: _getWeatherTemperature(),
+              color: const Color(0xFFFF9800),
+              gradient: [const Color(0xFFFFB74D), const Color(0xFFFB8C00)],
+            ),
           ),
         ),
       ],
@@ -774,7 +677,7 @@ class _Home_ScreenState extends State<Home_Screen>
             padding: const EdgeInsets.all(16),
             itemCount: cropList.length,
             itemBuilder: (context, index) {
-              final crop = cropList[index];
+              final crop = cropList[index] as Map<String, dynamic>;
               return _buildCropCard(crop);
             },
           );
@@ -824,7 +727,7 @@ class _Home_ScreenState extends State<Home_Screen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    crop['name'] ?? 'Crop',
+                    (crop['name'] as String?) ?? 'Crop',
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 20,
@@ -879,7 +782,7 @@ class _Home_ScreenState extends State<Home_Screen>
     for (var week in weeks) {
       final dateRange = week['date_range'] as List<dynamic>?;
       if (dateRange != null && dateRange.length >= 2) {
-        final endDate = DateTime.tryParse(dateRange[1]);
+        final endDate = DateTime.tryParse(dateRange[1].toString());
         if (endDate != null && now.isAfter(endDate)) {
           completed++;
         }

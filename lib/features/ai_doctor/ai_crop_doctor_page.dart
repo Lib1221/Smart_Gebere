@@ -26,15 +26,70 @@ class _AICropDoctorPageState extends State<AICropDoctorPage>
   ChatSession? _chatSession;
   final ImagePicker _picker = ImagePicker();
 
-  // Quick suggestion prompts
+  // Quick suggestion prompts - context-aware for Ethiopian farming
   final List<Map<String, dynamic>> _quickPrompts = [
-    {'icon': '🌿', 'text': 'My plant leaves are turning yellow'},
-    {'icon': '🐛', 'text': 'How to control pests naturally?'},
-    {'icon': '💧', 'text': 'Best irrigation practices'},
-    {'icon': '🌱', 'text': 'When should I plant teff?'},
-    {'icon': '🧪', 'text': 'How to improve soil fertility?'},
-    {'icon': '🌾', 'text': 'Signs of nutrient deficiency'},
+    {'icon': '🌿', 'text': 'My teff leaves are turning yellow, what should I do?'},
+    {'icon': '🐛', 'text': 'How do I control stem borers organically?'},
+    {'icon': '💧', 'text': 'Best irrigation schedule for Ethiopian highlands'},
+    {'icon': '🌱', 'text': 'When is the best time to plant wheat in Ethiopia?'},
+    {'icon': '🧪', 'text': 'How to improve clay soil fertility naturally?'},
+    {'icon': '🌾', 'text': 'Signs of nitrogen deficiency in maize'},
+    {'icon': '☕', 'text': 'How to prevent coffee berry disease?'},
+    {'icon': '🌽', 'text': 'Optimal spacing for sorghum planting'},
   ];
+
+  // Strong system instruction for Gemini
+  static const String _systemPrompt = '''
+You are **Dr. Gebere**, an expert AI agricultural advisor and crop doctor specifically trained for Ethiopian farmers. You have deep expertise in:
+
+## Your Expertise Areas:
+1. **Ethiopian Crops**: Teff, wheat, barley, maize, sorghum, finger millet, coffee, enset (false banana), noug, chickpea, lentils, faba beans, field pea, sesame, cotton, sugarcane
+2. **Ethiopian Climate Zones**: Highland (Dega), Mid-altitude (Woina Dega), Lowland (Kolla), and their specific agricultural conditions
+3. **Traditional & Modern Practices**: Both indigenous Ethiopian farming knowledge and modern sustainable agriculture
+4. **Disease Diagnosis**: Plant pathology, pest identification, and integrated pest management
+5. **Soil Management**: Ethiopian soil types, fertility management, composting, crop rotation
+
+## Response Guidelines:
+
+### When Answering Questions:
+- Be **specific and actionable** - farmers need practical steps they can take today
+- Consider **Ethiopian context**: local availability of inputs, economic constraints, seasonal patterns (Kiremt/Meher, Belg)
+- Suggest **locally available solutions** before imported alternatives
+- Include **prevention strategies** not just treatments
+- Mention when to consult **local agricultural extension officers** (Development Agents)
+- Be **encouraging and supportive** - farming is challenging work
+
+### For Disease/Pest Diagnosis:
+1. Ask clarifying questions if needed (what crop, symptoms, when started, weather conditions)
+2. Provide **most likely diagnosis** with confidence level
+3. Explain **symptoms to look for** to confirm
+4. Give **immediate action steps**
+5. Recommend **prevention for future**
+6. Warn about **similar-looking conditions** to rule out
+
+### For Image Analysis:
+1. Describe what you observe in the plant/crop
+2. Identify the crop type if possible
+3. Note any visible issues (discoloration, spots, wilting, pest damage, nutrient deficiency)
+4. Provide diagnosis with confidence level (high/medium/low)
+5. Give treatment recommendations
+6. Suggest prevention measures
+
+### Format Guidelines:
+- Use **bullet points** for action steps
+- Use **emojis** sparingly for visual clarity (✅ for recommendations, ⚠️ for warnings)
+- Keep responses **concise but complete** (aim for 150-300 words unless more detail requested)
+- Use **simple language** that translates well
+
+### Important Reminders:
+- If you're not confident, say so and recommend professional consultation
+- Never recommend banned or dangerous pesticides
+- Promote **sustainable and organic practices** when possible
+- Consider **economic constraints** of smallholder farmers
+- Be culturally sensitive and respectful
+
+You are a trusted advisor helping Ethiopian farmers succeed. Your guidance directly impacts food security and livelihoods.
+''';
 
   @override
   void initState() {
@@ -51,18 +106,20 @@ class _AICropDoctorPageState extends State<AICropDoctorPage>
   }
 
   void _addWelcomeMessage() {
+    // Welcome message is in English to be universally understood on first load
     _messages.add(ChatMessage(
-      text: '''👋 Hello! I'm your AI Crop Doctor.
+      text: '''👋 **Selam! I'm Dr. Gebere, your AI Crop Doctor.**
 
-I can help you with:
-• 🌿 Plant disease diagnosis
-• 🐛 Pest control advice
-• 💧 Irrigation & watering tips
-• 🌱 Planting schedules
-• 🧪 Soil & fertilizer guidance
-• 🌾 Crop-specific questions
+I'm here to help Ethiopian farmers with all agricultural questions. I specialize in:
 
-You can also send me photos of your plants for diagnosis!
+• 🌾 **Ethiopian Crops**: Teff, wheat, maize, coffee, enset & more
+• 🔬 **Disease Diagnosis**: Send photos or describe symptoms
+• 🐛 **Pest Control**: Organic & sustainable solutions
+• 🌱 **Planting Advice**: When & how to plant
+• 🧪 **Soil & Fertilizer**: Improve your land's fertility
+• 💧 **Irrigation**: Water management tips
+
+**Tip**: You can send me a photo of your plant for diagnosis! 📸
 
 How can I help you today?''',
       isUser: false,
@@ -72,48 +129,65 @@ How can I help you today?''',
 
   Future<void> _initializeAI() async {
     try {
-      final apiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
+      // Try multiple API key environment variable names
+      String apiKey = dotenv.env['GEMINI_API_KEY'] ?? 
+                      dotenv.env['API_KEY'] ?? 
+                      dotenv.env['GOOGLE_API_KEY'] ?? '';
+      
       if (apiKey.isEmpty) {
-        debugPrint('[AICropDoctor] No API key found');
+        debugPrint('[AICropDoctor] No API key found in environment');
+        _showError('AI service not configured. Please check your API key.');
         return;
       }
 
+      // Prefer the latest model for best performance
       final modelName = dotenv.env['GEMINI_MODEL'] ?? 'gemini-1.5-flash';
+      
       _model = GenerativeModel(
         model: modelName,
         apiKey: apiKey,
         generationConfig: GenerationConfig(
           temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
           maxOutputTokens: 2048,
         ),
-        systemInstruction: Content.text('''
-You are an expert agricultural advisor and crop doctor for Ethiopian farmers.
-Your role is to help farmers with:
-- Diagnosing plant diseases from descriptions or images
-- Providing pest control solutions (preferring organic/natural methods)
-- Advising on irrigation, fertilization, and soil management
-- Recommending planting schedules for Ethiopian crops
-- Answering questions about teff, wheat, barley, maize, sorghum, coffee, and other Ethiopian crops
-
-Guidelines:
-- Give practical, actionable advice
-- Consider Ethiopian climate and conditions
-- Suggest locally available solutions when possible
-- Be encouraging and supportive
-- If unsure, recommend consulting local agricultural extension officers
-- Keep responses concise but helpful
-'''),
+        systemInstruction: Content.text(_systemPrompt),
+        safetySettings: [
+          SafetySetting(HarmCategory.harassment, HarmBlockThreshold.high),
+          SafetySetting(HarmCategory.hateSpeech, HarmBlockThreshold.high),
+          SafetySetting(HarmCategory.sexuallyExplicit, HarmBlockThreshold.high),
+          SafetySetting(HarmCategory.dangerousContent, HarmBlockThreshold.medium),
+        ],
       );
 
       _chatSession = _model!.startChat();
+      debugPrint('[AICropDoctor] AI initialized successfully with model: $modelName');
     } catch (e) {
       debugPrint('[AICropDoctor] Error initializing AI: $e');
+      _showError('Failed to initialize AI. Please check your connection.');
     }
+  }
+
+  void _showError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red[700],
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   Future<void> _sendMessage(String text, {XFile? image}) async {
     if (text.trim().isEmpty && image == null) return;
     if (_isLoading) return;
+    if (_model == null) {
+      _showError('AI service is not ready. Please wait...');
+      await _initializeAI();
+      return;
+    }
 
     final settings = Provider.of<AppSettings>(context, listen: false);
     final language = settings.aiLanguageName();
@@ -136,18 +210,32 @@ Guidelines:
       String response;
       
       if (image != null) {
-        // Image-based query
+        // Enhanced image-based diagnosis with strong prompt
         final bytes = await image.readAsBytes();
         final prompt = '''
-Analyze this plant/crop image and provide:
-1. What you observe (plant type, condition)
-2. Any diseases or problems detected
-3. Recommended treatment or action
-4. Prevention tips
+## Image Analysis Request
 
-User's question: ${text.isNotEmpty ? text : 'What is wrong with this plant?'}
+**User's Question**: ${text.isNotEmpty ? text : 'Please analyze this plant and tell me if there are any problems.'}
 
-Please respond in $language.
+**Instructions for Analysis**:
+1. First, identify what you can see (plant type, growth stage, overall health)
+2. Look for any abnormalities:
+   - Leaf discoloration (yellowing, browning, spots)
+   - Wilting or drooping
+   - Pest presence or damage signs
+   - Disease symptoms (lesions, mold, decay)
+   - Nutrient deficiency indicators
+3. Provide diagnosis with confidence level
+4. Give specific, actionable treatment recommendations
+5. Include prevention tips for the future
+
+**Important**: 
+- Be specific about what you observe
+- If the image is unclear, ask for a better photo
+- Consider Ethiopian farming context
+- Suggest locally available solutions
+
+Please respond in **$language**.
 ''';
         
         final content = [
@@ -158,11 +246,25 @@ Please respond in $language.
         ];
         
         final result = await _model!.generateContent(content);
-        response = result.text ?? 'I could not analyze the image. Please try again.';
+        response = result.text ?? 'I could not analyze the image. Please try again with a clearer photo.';
       } else {
-        // Text-based query
-        final prompt = '$text\n\nPlease respond in $language.';
-        final result = await _chatSession!.sendMessage(Content.text(prompt));
+        // Enhanced text-based query with context
+        final enhancedPrompt = '''
+**Farmer's Question**: $text
+
+**Context**: This question is from an Ethiopian farmer seeking practical agricultural advice.
+
+**Instructions**:
+- Provide specific, actionable advice
+- Consider Ethiopian climate, soil, and available resources
+- Suggest locally available solutions
+- Include both immediate actions and long-term recommendations
+- Be encouraging and supportive
+
+Please respond in **$language**.
+''';
+        
+        final result = await _chatSession!.sendMessage(Content.text(enhancedPrompt));
         response = result.text ?? 'I could not process your request. Please try again.';
       }
 
@@ -179,10 +281,69 @@ Please respond in $language.
       }
     } catch (e) {
       debugPrint('[AICropDoctor] Error: $e');
+      
+      String errorMessage = 'Sorry, I encountered an error.';
+      final errorStr = e.toString().toLowerCase();
+      
+      if (errorStr.contains('network') || errorStr.contains('connection')) {
+        errorMessage = '📶 No internet connection. Please check your network and try again.';
+      } else if (errorStr.contains('quota') || errorStr.contains('limit')) {
+        errorMessage = '⚠️ Service temporarily unavailable. Please try again later.';
+      } else if (errorStr.contains('not found') || errorStr.contains('not supported')) {
+        // Try fallback model
+        await _tryFallbackModel();
+        return;
+      } else {
+        errorMessage = '❌ Something went wrong. Please try again or rephrase your question.';
+      }
+      
       if (mounted) {
         setState(() {
           _messages.add(ChatMessage(
-            text: 'Sorry, I encountered an error. Please check your internet connection and try again.',
+            text: errorMessage,
+            isUser: false,
+            timestamp: DateTime.now(),
+            isError: true,
+          ));
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _tryFallbackModel() async {
+    try {
+      final apiKey = dotenv.env['GEMINI_API_KEY'] ?? 
+                     dotenv.env['API_KEY'] ?? '';
+      
+      _model = GenerativeModel(
+        model: 'gemini-1.5-flash',
+        apiKey: apiKey,
+        generationConfig: GenerationConfig(
+          temperature: 0.7,
+          maxOutputTokens: 2048,
+        ),
+        systemInstruction: Content.text(_systemPrompt),
+      );
+      
+      _chatSession = _model!.startChat();
+      
+      if (mounted) {
+        setState(() {
+          _messages.add(ChatMessage(
+            text: '🔄 Reconnected to AI service. Please try your question again.',
+            isUser: false,
+            timestamp: DateTime.now(),
+          ));
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('[AICropDoctor] Fallback failed: $e');
+      if (mounted) {
+        setState(() {
+          _messages.add(ChatMessage(
+            text: '❌ AI service unavailable. Please try again later.',
             isUser: false,
             timestamp: DateTime.now(),
             isError: true,
@@ -219,6 +380,7 @@ Please respond in $language.
       }
     } catch (e) {
       debugPrint('[AICropDoctor] Image picker error: $e');
+      _showError('Could not access camera/gallery. Please check permissions.');
     }
   }
 
@@ -245,11 +407,20 @@ Please respond in $language.
             ),
             const SizedBox(height: 20),
             Text(
-              'Add Photo',
+              '📸 Add Photo for Diagnosis',
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Take a close-up photo of the affected plant part',
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
             Row(
@@ -332,30 +503,46 @@ Please respond in $language.
               child: const Text('🩺', style: TextStyle(fontSize: 20)),
             ),
             const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'AI Crop Doctor',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Dr. Gebere - AI Crop Doctor',
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                Text(
-                  'Ask anything about farming',
-                  style: GoogleFonts.poppins(
-                    fontSize: 11,
-                    color: Colors.white70,
+                  Row(
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: _model != null ? Colors.greenAccent : Colors.orange,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        _model != null ? 'Online' : 'Connecting...',
+                        style: GoogleFonts.poppins(
+                          fontSize: 11,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: 'New Conversation',
             onPressed: () {
               setState(() {
                 _messages.clear();
@@ -363,6 +550,26 @@ Please respond in $language.
                 _chatSession = _model?.startChat();
               });
             },
+          ),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) {
+              if (value == 'tips') {
+                _showTipsDialog();
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'tips',
+                child: Row(
+                  children: [
+                    Icon(Icons.lightbulb_outline, color: Colors.amber),
+                    SizedBox(width: 8),
+                    Text('Tips for Better Diagnosis'),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -383,7 +590,7 @@ Please respond in $language.
             ),
           ),
 
-          // Quick prompts (show only if no user messages yet)
+          // Quick prompts (show only if minimal messages)
           if (_messages.length <= 1)
             Container(
               height: 50,
@@ -394,8 +601,10 @@ Please respond in $language.
                 itemCount: _quickPrompts.length,
                 itemBuilder: (context, index) {
                   final prompt = _quickPrompts[index];
+                  final promptText = prompt['text'] as String? ?? '';
+                  final promptIcon = prompt['icon'] as String? ?? '💬';
                   return GestureDetector(
-                    onTap: () => _sendMessage(prompt['text']),
+                    onTap: () => _sendMessage(promptText),
                     child: Container(
                       margin: const EdgeInsets.only(right: 8),
                       padding: const EdgeInsets.symmetric(
@@ -405,10 +614,10 @@ Please respond in $language.
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFF4CAF50).withOpacity(0.3)),
+                        border: Border.all(color: const Color(0xFF4CAF50).withAlpha(77)),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withAlpha(13),
                             blurRadius: 5,
                           ),
                         ],
@@ -416,13 +625,17 @@ Please respond in $language.
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(prompt['icon'], style: const TextStyle(fontSize: 16)),
+                          Text(promptIcon, style: const TextStyle(fontSize: 16)),
                           const SizedBox(width: 6),
-                          Text(
-                            prompt['text'],
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              color: Colors.grey[700],
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 200),
+                            child: Text(
+                              promptText,
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: Colors.grey[700],
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -520,13 +733,77 @@ Please respond in $language.
     );
   }
 
+  void _showTipsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Text('💡', style: TextStyle(fontSize: 24)),
+            const SizedBox(width: 8),
+            Text(
+              'Tips for Better Results',
+              style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildTip('📸', 'For photos, take close-up shots of affected areas'),
+              _buildTip('🌡️', 'Mention your location and current weather'),
+              _buildTip('📅', 'Tell me when the problem started'),
+              _buildTip('🌱', 'Specify the crop type and growth stage'),
+              _buildTip('💊', 'List any treatments you\'ve already tried'),
+              _buildTip('📍', 'Describe if the problem is widespread or localized'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Got it!',
+              style: GoogleFonts.poppins(
+                color: const Color(0xFF2E7D32),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTip(String emoji, String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 18)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[700]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildMessageBubble(ChatMessage message) {
     return Align(
       alignment: message.isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.8,
+          maxWidth: MediaQuery.of(context).size.width * 0.85,
         ),
         child: Column(
           crossAxisAlignment:
@@ -550,12 +827,12 @@ Please respond in $language.
                   child: kIsWeb
                       ? Image.network(
                           message.imageFile!.path,
-                          height: 150,
+                          height: 180,
                           fit: BoxFit.cover,
                         )
                       : Image.file(
                           File(message.imageFile!.path),
-                          height: 150,
+                          height: 180,
                           fit: BoxFit.cover,
                         ),
                 ),
@@ -583,7 +860,7 @@ Please respond in $language.
                   ),
                 ],
               ),
-              child: Text(
+              child: SelectableText(
                 message.text,
                 style: GoogleFonts.poppins(
                   color: message.isUser
@@ -618,7 +895,7 @@ Please respond in $language.
       alignment: Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
@@ -632,6 +909,19 @@ Please respond in $language.
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Text(
+              '🩺',
+              style: TextStyle(fontSize: 16),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Analyzing',
+              style: GoogleFonts.poppins(
+                color: Colors.grey[600],
+                fontSize: 13,
+              ),
+            ),
+            const SizedBox(width: 4),
             _buildDot(0),
             const SizedBox(width: 4),
             _buildDot(1),
@@ -682,4 +972,3 @@ class ChatMessage {
     this.isError = false,
   });
 }
-
