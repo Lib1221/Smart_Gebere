@@ -206,6 +206,69 @@ class AppLocalizations {
   String get termsOfService => _t('termsOfService');
   String get close => _t('close');
 
+  // Disease Detection Enhanced
+  String get diseaseDetails => _t('diseaseDetails');
+  String get confidence => _t('confidence');
+  String get high => _t('high');
+  String get medium => _t('medium');
+  String get low => _t('low');
+  String get unknown => _t('unknown');
+  String get shareResults => _t('shareResults');
+  String get saveToHistory => _t('saveToHistory');
+  String get detectionHistory => _t('detectionHistory');
+  String get noHistoryYet => _t('noHistoryYet');
+  String get clearHistory => _t('clearHistory');
+  String get deleteEntry => _t('deleteEntry');
+  String get healthy => _t('healthy');
+  String get diseased => _t('diseased');
+  String get analysisComplete => _t('analysisComplete');
+  String get selectImageFirst => _t('selectImageFirst');
+  String get modelNotInitialized => _t('modelNotInitialized');
+  String get analyzing => _t('analyzing');
+  String get retryAnalysis => _t('retryAnalysis');
+  String get viewDetails => _t('viewDetails');
+  String get confirm => _t('confirm');
+  String get gallery => _t('gallery');
+  String get takePhoto => _t('takePhoto');
+  String get chooseSource => _t('chooseSource');
+  String get recentDetections => _t('recentDetections');
+  String get noDiseasesFound => _t('noDiseasesFound');
+  String get plantHealthy => _t('plantHealthy');
+  String get tapToAnalyze => _t('tapToAnalyze');
+  String get resultsSaved => _t('resultsSaved');
+  String get historyCleared => _t('historyCleared');
+
+  // Crop Planning Enhanced
+  String get timeline => _t('timeline');
+  String get progress => _t('progress');
+  String get overview => _t('overview');
+  String get currentWeek => _t('currentWeek');
+  String get upcomingTasks => _t('upcomingTasks');
+  String get completedTasks => _t('completedTasks');
+  String get pendingTasks => _t('pendingTasks');
+  String get markComplete => _t('markComplete');
+  String get taskDetails => _t('taskDetails');
+  String get startDate => _t('startDate');
+  String get endDate => _t('endDate');
+  String get plantingProgress => _t('plantingProgress');
+  String get weekProgress => _t('weekProgress');
+  String get noTasksYet => _t('noTasksYet');
+  String get generatePlan => _t('generatePlan');
+  String get regeneratePlan => _t('regeneratePlan');
+  String get savePlan => _t('savePlan');
+  String get planSaved => _t('planSaved');
+  String get viewCalendar => _t('viewCalendar');
+  String get weekOf => _t('weekOf');
+  String get tasksForWeek => _t('tasksForWeek');
+  String get cropCalendar => _t('cropCalendar');
+  String get farmingStage => _t('farmingStage');
+  String get estimatedDuration => _t('estimatedDuration');
+  String get weeks => _t('weeks');
+  String get ready => _t('ready');
+  String get inProgress => _t('inProgress');
+  String get completed => _t('completed');
+  String get notStarted => _t('notStarted');
+
   String aiRespondIn(String language) {
     final template = _t('aiRespondIn');
     return template.replaceAll('{language}', language);
@@ -374,6 +437,67 @@ class AppLocalizations {
       'privacyPolicy': 'Privacy Policy',
       'termsOfService': 'Terms of Service',
       'close': 'Close',
+      // Disease Detection Enhanced
+      'diseaseDetails': 'Disease Details',
+      'confidence': 'Confidence',
+      'high': 'High',
+      'medium': 'Medium',
+      'low': 'Low',
+      'unknown': 'Unknown',
+      'shareResults': 'Share Results',
+      'saveToHistory': 'Save to History',
+      'detectionHistory': 'Detection History',
+      'noHistoryYet': 'No detection history yet',
+      'clearHistory': 'Clear History',
+      'deleteEntry': 'Delete Entry',
+      'healthy': 'Healthy',
+      'diseased': 'Diseased',
+      'analysisComplete': 'Analysis Complete',
+      'selectImageFirst': 'Please select an image first',
+      'modelNotInitialized': 'Model not initialized. Check your API key.',
+      'analyzing': 'Analyzing...',
+      'retryAnalysis': 'Retry Analysis',
+      'viewDetails': 'View Details',
+      'confirm': 'Confirm',
+      'gallery': 'Gallery',
+      'takePhoto': 'Take Photo',
+      'chooseSource': 'Choose Image Source',
+      'recentDetections': 'Recent Detections',
+      'noDiseasesFound': 'No diseases detected',
+      'plantHealthy': 'Your plant appears healthy!',
+      'tapToAnalyze': 'Tap Detect to analyze',
+      'resultsSaved': 'Results saved to history',
+      'historyCleared': 'History cleared',
+      // Crop Planning Enhanced
+      'timeline': 'Timeline',
+      'progress': 'Progress',
+      'overview': 'Overview',
+      'currentWeek': 'Current Week',
+      'upcomingTasks': 'Upcoming Tasks',
+      'completedTasks': 'Completed Tasks',
+      'pendingTasks': 'Pending Tasks',
+      'markComplete': 'Mark Complete',
+      'taskDetails': 'Task Details',
+      'startDate': 'Start Date',
+      'endDate': 'End Date',
+      'plantingProgress': 'Planting Progress',
+      'weekProgress': 'Week Progress',
+      'noTasksYet': 'No tasks yet',
+      'generatePlan': 'Generate Plan',
+      'regeneratePlan': 'Regenerate Plan',
+      'savePlan': 'Save Plan',
+      'planSaved': 'Plan saved successfully!',
+      'viewCalendar': 'View Calendar',
+      'weekOf': 'Week of',
+      'tasksForWeek': 'Tasks for Week',
+      'cropCalendar': 'Crop Calendar',
+      'farmingStage': 'Farming Stage',
+      'estimatedDuration': 'Estimated Duration',
+      'weeks': 'weeks',
+      'ready': 'Ready',
+      'inProgress': 'In Progress',
+      'completed': 'Completed',
+      'notStarted': 'Not Started',
     },
     'am': {
       'appName': 'ስማርት ገበሬ',
@@ -537,6 +661,67 @@ class AppLocalizations {
       'privacyPolicy': 'የግላዊነት ፖሊሲ',
       'termsOfService': 'የአገልግሎት ውሎች',
       'close': 'ዝጋ',
+      // Disease Detection Enhanced
+      'diseaseDetails': 'የበሽታ ዝርዝሮች',
+      'confidence': 'እምነት',
+      'high': 'ከፍተኛ',
+      'medium': 'መካከለኛ',
+      'low': 'ዝቅተኛ',
+      'unknown': 'ያልታወቀ',
+      'shareResults': 'ውጤቶችን አጋራ',
+      'saveToHistory': 'ወደ ታሪክ አስቀምጥ',
+      'detectionHistory': 'የምርመራ ታሪክ',
+      'noHistoryYet': 'ገና የምርመራ ታሪክ የለም',
+      'clearHistory': 'ታሪክ አጥፋ',
+      'deleteEntry': 'ግቤት ሰርዝ',
+      'healthy': 'ጤናማ',
+      'diseased': 'የታመመ',
+      'analysisComplete': 'ትንተና ተጠናቋል',
+      'selectImageFirst': 'እባክዎ መጀመሪያ ምስል ይምረጡ',
+      'modelNotInitialized': 'ሞዴል አልተጀመረም። የAPI ቁልፍዎን ይፈትሹ።',
+      'analyzing': 'በመተንተን ላይ...',
+      'retryAnalysis': 'ትንተና ድገም',
+      'viewDetails': 'ዝርዝሮችን ተመልከት',
+      'confirm': 'አረጋግጥ',
+      'gallery': 'ጋለሪ',
+      'takePhoto': 'ፎቶ አንሳ',
+      'chooseSource': 'የምስል ምንጭ ይምረጡ',
+      'recentDetections': 'የቅርብ ምርመራዎች',
+      'noDiseasesFound': 'ምንም በሽታ አልተገኘም',
+      'plantHealthy': 'ተክልዎ ጤናማ ይመስላል!',
+      'tapToAnalyze': 'ለመተንተን ምርመራ ይጫኑ',
+      'resultsSaved': 'ውጤቶች ወደ ታሪክ ተቀምጠዋል',
+      'historyCleared': 'ታሪክ ተጠርጓል',
+      // Crop Planning Enhanced
+      'timeline': 'የጊዜ መስመር',
+      'progress': 'ሂደት',
+      'overview': 'አጠቃላይ እይታ',
+      'currentWeek': 'ወቅታዊ ሳምንት',
+      'upcomingTasks': 'መጪ ተግባሮች',
+      'completedTasks': 'የተጠናቀቁ ተግባሮች',
+      'pendingTasks': 'በመጠባበቅ ላይ ያሉ ተግባሮች',
+      'markComplete': 'እንደተጠናቀቀ ምልክት አድርግ',
+      'taskDetails': 'የተግባር ዝርዝሮች',
+      'startDate': 'የመጀመሪያ ቀን',
+      'endDate': 'የመጨረሻ ቀን',
+      'plantingProgress': 'የመተከል ሂደት',
+      'weekProgress': 'የሳምንት ሂደት',
+      'noTasksYet': 'ገና ምንም ተግባሮች የሉም',
+      'generatePlan': 'ዕቅድ ይፍጠሩ',
+      'regeneratePlan': 'ዕቅድ እንደገና ይፍጠሩ',
+      'savePlan': 'ዕቅድ አስቀምጥ',
+      'planSaved': 'ዕቅድ በተሳካ ሁኔታ ተቀምጧል!',
+      'viewCalendar': 'ቀን መቁጠሪያ ተመልከት',
+      'weekOf': 'የ ሳምንት',
+      'tasksForWeek': 'ለሳምንት ተግባሮች',
+      'cropCalendar': 'የሰብል ቀን መቁጠሪያ',
+      'farmingStage': 'የእርሻ ደረጃ',
+      'estimatedDuration': 'የተገመተ ቆይታ',
+      'weeks': 'ሳምንታት',
+      'ready': 'ዝግጁ',
+      'inProgress': 'በሂደት ላይ',
+      'completed': 'ተጠናቋል',
+      'notStarted': 'አልተጀመረም',
     },
     'om': {
       'appName': 'Smart Gebere',
@@ -700,6 +885,67 @@ class AppLocalizations {
       'privacyPolicy': 'Imaammata Iccitii',
       'termsOfService': 'Haala Tajaajilaa',
       'close': 'Cufi',
+      // Disease Detection Enhanced
+      'diseaseDetails': 'Bal\'ina Dhukkuba',
+      'confidence': 'Amantaa',
+      'high': 'Ol\'aanaa',
+      'medium': 'Giddu-galeessa',
+      'low': 'Gadi-aanaa',
+      'unknown': 'Hin beekamne',
+      'shareResults': 'Bu\'aa Qoodi',
+      'saveToHistory': 'Seenaa keessa Olkaa\'i',
+      'detectionHistory': 'Seenaa Sakatta\'iinsa',
+      'noHistoryYet': 'Ammas seenaan sakatta\'iinsaa hin jiru',
+      'clearHistory': 'Seenaa Haqi',
+      'deleteEntry': 'Galmee Haqi',
+      'healthy': 'Fayyaa',
+      'diseased': 'Dhukkubsate',
+      'analysisComplete': 'Xiinxalli Xumuurame',
+      'selectImageFirst': 'Mee jalqaba suuraa filadhu',
+      'modelNotInitialized': 'Moodelli hin eegalamne. Furtuu API kee mirkaneessi.',
+      'analyzing': 'Xiinxalaa jira...',
+      'retryAnalysis': 'Xiinxala Irradeebi\'i',
+      'viewDetails': 'Bal\'ina Ilaali',
+      'confirm': 'Mirkaneessi',
+      'gallery': 'Gaalaarii',
+      'takePhoto': 'Suuraa Kaasi',
+      'chooseSource': 'Madda Suuraa Filadhu',
+      'recentDetections': 'Sakatta\'iinsa Dhihoo',
+      'noDiseasesFound': 'Dhukkubni hin argamne',
+      'plantHealthy': 'Biqiltuun kee fayyaa fakkaata!',
+      'tapToAnalyze': 'Xiinxaluuf Sakatta\'i tuqi',
+      'resultsSaved': 'Bu\'aan seenaa keessa olkaa\'ame',
+      'historyCleared': 'Seenaan haqame',
+      // Crop Planning Enhanced
+      'timeline': 'Sarara Yeroo',
+      'progress': 'Fooyya\'iinsa',
+      'overview': 'Haala Waliigalaa',
+      'currentWeek': 'Torban Ammaa',
+      'upcomingTasks': 'Hojii Dhufaa',
+      'completedTasks': 'Hojii Xumurame',
+      'pendingTasks': 'Hojii Eegaa Jiru',
+      'markComplete': 'Akka Xumurametti Mallatteessi',
+      'taskDetails': 'Bal\'ina Hojii',
+      'startDate': 'Guyyaa Jalqabaa',
+      'endDate': 'Guyyaa Xumuraa',
+      'plantingProgress': 'Fooyya\'iinsa Dhaabbii',
+      'weekProgress': 'Fooyya\'iinsa Torbanaa',
+      'noTasksYet': 'Ammas hojiin hin jiru',
+      'generatePlan': 'Karoora Uumi',
+      'regeneratePlan': 'Karoora Irra deebi\'ii Uumi',
+      'savePlan': 'Karoora Olkaa\'i',
+      'planSaved': 'Karoorri milkaa\'inaan olkaa\'ame!',
+      'viewCalendar': 'Kalaa\'andarii Ilaali',
+      'weekOf': 'Torban kan',
+      'tasksForWeek': 'Hojii Torbanaa',
+      'cropCalendar': 'Kalaa\'andarii Midhaanii',
+      'farmingStage': 'Sadarkaa Qonnaa',
+      'estimatedDuration': 'Turmaata Tilmaamame',
+      'weeks': 'torbanota',
+      'ready': 'Qophaa\'e',
+      'inProgress': 'Hojjatamaa Jira',
+      'completed': 'Xumuurame',
+      'notStarted': 'Hin eegalamne',
     },
   };
 }
