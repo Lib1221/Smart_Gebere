@@ -130,7 +130,9 @@ class LocationService {
   }
 
   Future<List<Map<String, dynamic>>> generateCropSuggestions(
-      Map<String, dynamic> locationData) async {
+      Map<String, dynamic> locationData, {
+    Map<String, dynamic>? fieldData,
+  }) async {
     if (_model == null) {
       throw Exception("Model is not initialized. Check your API key.");
     }
@@ -138,6 +140,18 @@ class LocationService {
     Map<String, dynamic> locationData = await getCurrentLocation();
     DateTime now = DateTime.now();
     final language = await _aiLanguageName();
+    
+    // Build field info if available
+    String fieldInfo = '';
+    if (fieldData != null) {
+      fieldInfo = '''
+### **Field Information:**
+- **Field Name:** ${fieldData['name'] ?? 'Unnamed'}
+- **Field Size:** ${fieldData['areaHectares']?.toStringAsFixed(2) ?? 'Unknown'} hectares
+- **Soil Type:** ${fieldData['soilType'] ?? 'Unknown'}
+''';
+    }
+    
     String prompt = """
 Based on the following location data, provide a **detailed** and **well-researched** list of the most suitable crops for cultivation in this area. 
 also analyse from these  ${now} extract data and and from location you could know the exact location then analyse in which season are in now
@@ -147,6 +161,8 @@ also analyse from these  ${now} extract data and and from location you could kno
 - **altitude:** ${locationData['elevation']} meters
 - **Current Temperature:** ${locationData['weather']['temperature']}°C
 - **Current Weather:** ${locationData['weather']['weather']}
+
+$fieldInfo
 
 ### **Analysis Criteria:**
 For each crop, analyze its suitability based on the **climate, soil conditions, temperature tolerance, precipitation needs, and elevation factors**. The response should be **scientifically accurate** and consider agricultural best practices.
