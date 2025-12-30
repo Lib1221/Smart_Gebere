@@ -1,415 +1,1256 @@
-# 🌾 Smart Gebere  
-_A smarter way to cultivate success._  
+# 🌾 Smart Gebere - Intelligent Agriculture Assistant
 
-<div align="center">  
-  <h3>📽️ Watch the Pre-Review Video</h3>  
-  <a href="https://youtu.be/C8Kw2S8Khf0">  
-    <img src="https://img.youtube.com/vi/C8Kw2S8Khf0/maxresdefault.jpg" alt="Smart Gebere - YouTube Video" width="70%">  
-  </a>  
-</div>  
+<div align="center">
 
-**Smart Gebere** helps farmers plan cultivation, detect crop disease, and use weather + location-aware guidance.
+![Smart Gebere Logo](assets/image_1.jpg)
 
-> **Important scope note**
-> This roadmap intentionally **does NOT include push notifications**. (Requested: “don’t implement notification”.)
+**An AI-powered mobile application designed to revolutionize farming practices for Ethiopian farmers**
 
-## 🌟 Key Features 🌟  
+[![Flutter](https://img.shields.io/badge/Flutter-3.x-blue.svg)](https://flutter.dev/)
+[![Firebase](https://img.shields.io/badge/Firebase-Enabled-orange.svg)](https://firebase.google.com/)
+[![Gemini AI](https://img.shields.io/badge/Gemini%20AI-Powered-green.svg)](https://ai.google.dev/)
+[![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 
-### 🌽 **Crop Recommendations**  
-💡 _"What should I plant today?"_  
-- Using **GPS data** and **manual inputs**, we analyze soil, weather, and historical data to recommend the **best crops** for your farm.  
+[Features](#-features) • [Installation](#-installation) • [Architecture](#-architecture) • [API Documentation](#-api-documentation) • [Contributing](#-contributing)
 
-### 🦠 **Disease Detection**  
-📸 _"Oh no! My crops look sick."_  
-- Snap a photo of your crops 🌾, and our AI will detect any diseases 🧪.  
-- Get actionable advice on treatment and prevention 💊.  
-
-### 🌤️ **Weather Forecasts**  
-📅 _"What’s the forecast for tomorrow?"_  
-- Stay ahead with real-time **weather forecasts** 🌦️, helping you plan your farming activities efficiently.  
-
-### 🎨 **Beautiful, Farmer-Friendly Design**  
-💻 _"Designed with you in mind."_  
-- A **simple and intuitive interface**, ensuring anyone can use it with ease.  
-
-## 🛠️ Built With Love and Tech ❤️‍🔥  
-
-- **Flutter** 🚀 - For crafting a cross-platform experience.  
-- **Firebase** 🔥 - Seamless backend integration.  
-
-## 🧑‍🌾 How to Get Started  
-
-### Prerequisites 🔑  
-✔️ Install Flutter SDK.  
-✔️ Set up Android Studio or Xcode.  
-✔️ Create a Firebase account.  
-
-### Installation 🚀  
-
-1. Clone the repo:  
-   ```bash
-   git clone https://github.com/lib1221/Smart_Gebere.git
-   cd SmartGebere
-   ```  
-
-2. Install dependencies 📦:  
-   ```bash
-   flutter pub get
-   ```  
-
-3. Configure Firebase 🔥:  
-   - Add `google-services.json` (Android) or `GoogleService-Info.plist` (iOS).  
-
-4. Run the app 🏃:  
-   ```bash
-   flutter run
-   ```  
+</div>
 
 ---
 
-## ✅ Implementation Guideline (Big Step-by-Step Guide)
-This section is the “master guide” for improving the app safely without repeating work across many sessions.
+## 📋 Table of Contents
 
-## 🏗️ Build / Run / Release Process (Step-by-step)
-This is the **practical build process** you follow every time you work on the app.
+1. [Overview](#-overview)
+2. [Features](#-features)
+3. [Technology Stack](#-technology-stack)
+4. [Architecture](#-architecture)
+5. [Installation & Setup](#-installation--setup)
+6. [Configuration](#-configuration)
+7. [Project Structure](#-project-structure)
+8. [Core Modules](#-core-modules)
+9. [API Documentation](#-api-documentation)
+10. [Database Schema](#-database-schema)
+11. [Localization](#-localization)
+12. [Security](#-security)
+13. [Testing](#-testing)
+14. [Deployment](#-deployment)
+15. [Troubleshooting](#-troubleshooting)
+16. [Roadmap](#-roadmap)
+17. [Contributing](#-contributing)
+18. [License](#-license)
 
-### 1) Setup & sanity checks
-Run these once per machine:
+---
 
-```bash
-flutter doctor
-flutter --version
+## 🌍 Overview
+
+**Smart Gebere** (ስማርት ገበሬ - "Smart Farmer" in Amharic) is a comprehensive agricultural assistant application built with Flutter. It leverages artificial intelligence, GPS technology, and real-time weather data to provide Ethiopian farmers with personalized crop recommendations, disease detection, yield predictions, and farm management tools.
+
+### Mission Statement
+
+> To empower Ethiopian farmers with cutting-edge technology, enabling data-driven decisions that increase crop yields, reduce losses, and promote sustainable farming practices.
+
+### Key Objectives
+
+- 🎯 **Personalized Recommendations**: AI-powered crop suggestions based on location, climate, and soil conditions
+- 🔬 **Disease Detection**: Image-based plant disease diagnosis using computer vision
+- 📅 **Smart Planning**: Week-by-week farming guides tailored to specific crops and fields
+- 📊 **Yield Prediction**: AI-powered harvest forecasting and market value estimation
+- 🗺️ **Field Mapping**: GPS-based land measurement and management
+- 🌐 **Multi-language Support**: Available in English, Amharic (አማርኛ), and Afaan Oromo
+
+---
+
+## ✨ Features
+
+### 🏠 Home Dashboard
+
+The central hub of the application featuring:
+
+| Component | Description |
+|-----------|-------------|
+| **Weather Widget** | Real-time weather data for the farmer's location |
+| **Quick Actions** | One-tap access to key features |
+| **Created Tasks** | Slideshow of active crop plans with progress |
+| **Expected Events** | Upcoming farming tasks and deadlines |
+| **Navigation Drawer** | Access to all app features |
+
+### 🌱 AI Crop Recommendations
+
+```
+Location Data → Weather API → Elevation API → Gemini AI → Personalized Crop List
 ```
 
-### 2) Install dependencies
-From the project folder (`Smart_Gebere/`):
+**How it works:**
+1. Fetches current GPS coordinates
+2. Retrieves elevation data from Open-Elevation API
+3. Gets real-time weather from OpenWeather API
+4. Optionally includes user's mapped field data (size, soil type)
+5. Sends comprehensive data to Gemini AI
+6. Returns ranked crop suggestions with suitability scores
+
+**Output includes:**
+- Crop name and description
+- Suitability percentage (0-100%)
+- Climate suitability analysis
+- Soil requirements
+- Water needs assessment
+- Elevation factor analysis
+- Seasonal growth patterns
+
+### 🩺 AI Crop Doctor
+
+An intelligent chat assistant for farming questions and plant diagnosis.
+
+**Capabilities:**
+- Real-time chat with Gemini AI
+- Photo-based plant disease diagnosis
+- Pest control advice (organic methods prioritized)
+- Irrigation and fertilization guidance
+- Crop-specific question answering
+- Multi-language responses
+
+**Technical Implementation:**
+```dart
+// Image-based diagnosis
+Content.multi([
+  TextPart(prompt),
+  DataPart('image/jpeg', imageBytes),
+])
+
+// Text-based chat
+ChatSession.sendMessage(Content.text(userQuery))
+```
+
+### 🔬 Disease Detection
+
+Advanced image analysis for plant disease identification.
+
+**Features:**
+- Camera and gallery image input
+- Real-time disease detection
+- Confidence score display
+- Treatment recommendations
+- Detection history
+- Share results functionality
+
+**AI Prompt Structure:**
+```
+Analyze this plant image and provide:
+1. Plant identification
+2. Disease/problem detection
+3. Severity assessment
+4. Treatment recommendations
+5. Prevention tips
+```
+
+### 📅 Crop Planning & Scheduling
+
+Week-by-week farming guides generated by AI.
+
+**Data Structure:**
+```json
+{
+  "week": 1,
+  "date_range": ["2025-01-01", "2025-01-07"],
+  "stage": "Land Preparation",
+  "tasks": [
+    "Test soil pH and adjust as necessary",
+    "Plow the field to a depth of 15 cm",
+    "Add organic compost"
+  ],
+  "completedTasks": [0, 2]
+}
+```
+
+**Stages Covered:**
+1. 🏗️ Land Preparation
+2. 🌱 Planting/Sowing
+3. 📈 Growth & Maintenance
+4. 🌸 Flowering
+5. 🌾 Harvest
+
+### 📊 Yield Prediction & Analytics
+
+AI-powered harvest forecasting system.
+
+**Inputs:**
+- Selected crop
+- Land size (hectares/acres/timad)
+- Seed amount
+- Fertilizer used
+- Field data (if mapped)
+
+**Outputs:**
+```json
+{
+  "estimated_yield_min": 1500,
+  "estimated_yield_max": 2500,
+  "yield_per_hectare": 2000,
+  "confidence_percentage": 85,
+  "market_value_estimate_min": 45000,
+  "market_value_estimate_max": 75000,
+  "harvest_quality_prediction": "good",
+  "optimal_harvest_timing": "When 90% of grains are golden",
+  "factors_affecting_yield": [...],
+  "recommendations": [...]
+}
+```
+
+### 🗺️ GPS Field Mapping
+
+Precise land measurement using GPS coordinates.
+
+**Features:**
+- Real-time GPS tracking
+- Walk-the-boundary mapping
+- Automatic area calculation (Shoelace formula)
+- Multiple soil type options
+- Save and manage multiple fields
+- Integration with crop recommendations
+
+**Area Calculation:**
+```dart
+// Shoelace formula for polygon area
+double _calculatePolygonArea(List<LatLng> points) {
+  double area = 0;
+  for (int i = 0; i < n; i++) {
+    int j = (i + 1) % n;
+    area += x1 * y2 - x2 * y1;
+  }
+  return (area.abs() / 2) / 10000; // hectares
+}
+```
+
+**Supported Soil Types:**
+- Loam
+- Clay
+- Sandy
+- Silt
+- Vertisol (Black Cotton)
+- Nitosol (Red)
+- Andosol
+
+### 📈 Market Prices
+
+Real-time agricultural commodity prices.
+
+**Features:**
+- Price trends visualization
+- Historical data charts
+- Regional price comparison
+- Price alerts (planned)
+
+### 🌤️ Weather Advisor
+
+Comprehensive weather information for farming decisions.
+
+**Data Provided:**
+- Current temperature
+- Humidity levels
+- Weather conditions
+- 7-day forecast
+- Farming recommendations based on weather
+
+### 📚 Knowledge Base
+
+Educational content for farmers.
+
+**Categories:**
+- Crop guides
+- Pest management
+- Soil health
+- Water management
+- Post-harvest handling
+- Market information
+
+### 📝 Farm Records
+
+Digital record-keeping for farm activities.
+
+**Record Types:**
+- Planting records
+- Harvest records
+- Input purchases
+- Sales records
+- Expense tracking
+
+### 👤 Farmer Profile
+
+User profile and farm information management.
+
+**Profile Data:**
+- Personal information
+- Farm location
+- Land holdings
+- Crop history
+- Preferences
+
+---
+
+## 🛠️ Technology Stack
+
+### Frontend
+
+| Technology | Purpose | Version |
+|------------|---------|---------|
+| **Flutter** | Cross-platform UI framework | 3.x |
+| **Dart** | Programming language | 3.x |
+| **Provider** | State management | 6.x |
+| **Google Fonts** | Typography | 6.x |
+| **FL Chart** | Data visualization | 0.69.x |
+
+### Backend & Services
+
+| Service | Purpose |
+|---------|---------|
+| **Firebase Auth** | User authentication |
+| **Cloud Firestore** | NoSQL database |
+| **Google Gemini AI** | AI/ML capabilities |
+| **OpenWeather API** | Weather data |
+| **Open-Elevation API** | Elevation data |
+
+### Core Packages
+
+```yaml
+dependencies:
+  # Firebase
+  firebase_core: ^3.12.1
+  firebase_auth: ^5.5.1
+  cloud_firestore: ^5.6.5
+
+  # AI & ML
+  google_generative_ai: ^0.4.6
+
+  # Location
+  geolocator: ^13.0.2
+
+  # Media
+  image_picker: ^1.1.2
+
+  # UI
+  google_fonts: ^6.2.1
+  fl_chart: ^0.69.2
+  awesome_dialog: ^3.2.1
+
+  # Storage
+  shared_preferences: ^2.x
+  hive: ^2.x
+  hive_flutter: ^1.x
+
+  # Utilities
+  http: ^1.3.0
+  intl: ^0.19.0
+  flutter_dotenv: ^5.2.1
+  provider: ^6.1.2
+  uuid: ^4.5.1
+```
+
+---
+
+## 🏗️ Architecture
+
+### Application Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      PRESENTATION LAYER                      │
+│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐           │
+│  │  Pages  │ │ Widgets │ │ Dialogs │ │  Cards  │           │
+│  └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘           │
+└───────┼───────────┼───────────┼───────────┼─────────────────┘
+        │           │           │           │
+        ▼           ▼           ▼           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                       BUSINESS LAYER                         │
+│  ┌────────────┐ ┌────────────┐ ┌────────────┐              │
+│  │  Services  │ │  Providers │ │   Models   │              │
+│  └─────┬──────┘ └─────┬──────┘ └─────┬──────┘              │
+└────────┼──────────────┼──────────────┼──────────────────────┘
+         │              │              │
+         ▼              ▼              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                        DATA LAYER                            │
+│  ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐   │
+│  │ Firebase  │ │ Gemini AI │ │  Weather  │ │   Local   │   │
+│  │ Firestore │ │    API    │ │    API    │ │  Storage  │   │
+│  └───────────┘ └───────────┘ └───────────┘ └───────────┘   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Data Flow
+
+```
+User Action
+    │
+    ▼
+┌─────────────┐
+│   Widget    │ ◄─── State Management (Provider/setState)
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│   Service   │ ◄─── Business Logic
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│  External   │ ◄─── Firebase / APIs / AI
+│   Service   │
+└──────┬──────┘
+       │
+       ▼
+   Response
+       │
+       ▼
+   UI Update
+```
+
+### State Management
+
+The app uses a combination of:
+
+1. **Provider** - For app-wide state (settings, user info)
+2. **StatefulWidget** - For local component state
+3. **FutureBuilder/StreamBuilder** - For async data
+
+```dart
+// Global state example
+class AppSettings extends ChangeNotifier {
+  Locale _locale = const Locale('en');
+  
+  Locale get locale => _locale;
+  
+  Future<void> setLocale(Locale newLocale) async {
+    _locale = newLocale;
+    await _persistLocale(newLocale);
+    notifyListeners();
+  }
+}
+```
+
+---
+
+## 🚀 Installation & Setup
+
+### Prerequisites
+
+- Flutter SDK 3.x or higher
+- Dart SDK 3.x or higher
+- Android Studio / VS Code
+- Firebase CLI
+- Git
+
+### Step 1: Clone Repository
+
+```bash
+git clone https://github.com/your-org/smart-gebere.git
+cd smart-gebere/Smart_Gebere
+```
+
+### Step 2: Install Dependencies
 
 ```bash
 flutter pub get
 ```
 
-### 3) Configure environment keys
-Create `.env` at `Smart_Gebere/.env` (keep it out of git). Minimum keys:
-- `API_KEY`
-- `OPENWEATHER_API_KEY`
-- `apiKeyW` (temporary; recommended to remove/rename later)
+### Step 3: Firebase Setup
 
-### 4) Configure Firebase (required for auth + Firestore)
-This repo includes `lib/firebase_options.dart` already. If you need to regenerate it:
-- Install FlutterFire CLI
-- Run FlutterFire configure for your Firebase project
+1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+2. Enable Authentication (Email/Password)
+3. Enable Cloud Firestore
+4. Download configuration files:
+   - `google-services.json` → `android/app/`
+   - `GoogleService-Info.plist` → `ios/Runner/`
 
-Typical commands:
+### Step 4: Environment Configuration
 
-```bash
-dart pub global activate flutterfire_cli
-flutterfire configure
+Create `.env` file in project root:
+
+```env
+# API Keys
+API_KEY=your_gemini_api_key
+GEMINI_API_KEY=your_gemini_api_key
+OPENWEATHER_API_KEY=your_openweather_api_key
+
+# Model Configuration
+GEMINI_MODEL=gemini-1.5-flash
 ```
 
-Then verify:
-- Android has `android/app/google-services.json`
-- iOS has `ios/Runner/GoogleService-Info.plist`
-
-### 5) Run (debug)
+### Step 5: Run Application
 
 ```bash
+# Development
 flutter run
-```
 
-Useful run flags:
-
-```bash
+# Web
 flutter run -d chrome
-flutter run --release
-```
 
-### 6) Build Android release artifacts
-- **APK** (easy to test/share):
+# Android
+flutter run -d android
 
-```bash
+# iOS
+flutter run -d ios
+
+# Build APK
 flutter build apk --release
-```
 
-- **AAB** (Google Play):
-
-```bash
-flutter build appbundle --release
-```
-
-Outputs:
-- `build/app/outputs/flutter-apk/`
-- `build/app/outputs/bundle/release/`
-
-### 7) Build Web
-
-```bash
-flutter build web --release
-```
-
-Output: `build/web/`
-
-### 8) iOS (macOS only)
-
-```bash
+# Build iOS
 flutter build ios --release
 ```
 
 ---
 
-## 🧭 Development workflow (how to use the checklist without repeating work)
-- Pick **one phase** from the “Master Checklist” at a time.
-- Create a short branch name like `phase1-logout-fix` or `phase2-firestore-model`.
-- Keep changes small and testable (one feature per PR).
-- After finishing a task, **check it off** in the README and add a short note about what changed.
+## ⚙️ Configuration
+
+### Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `API_KEY` | Gemini AI API key | ✅ |
+| `GEMINI_API_KEY` | Alternative Gemini key | ✅ |
+| `OPENWEATHER_API_KEY` | Weather API key | ✅ |
+| `GEMINI_MODEL` | AI model name | ❌ (default: gemini-1.5-flash) |
+
+### Firebase Configuration
+
+**Firestore Security Rules:**
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Farmers collection
+    match /Farmers/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Public content
+    match /content/{document=**} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+  }
+}
+```
 
 ---
 
-## 🧰 Troubleshooting (common errors)
+## 📁 Project Structure
 
-### Error: `Flutter Web engine failed to fetch "assets/AssetManifest.json" (404)`
-Symptoms:
-- Web run shows `assets/AssetManifest.json` 404
-- `google_fonts` logs “Unable to load asset: AssetManifest.json”
+```
+Smart_Gebere/
+├── android/                    # Android-specific code
+├── ios/                        # iOS-specific code
+├── web/                        # Web-specific code
+├── lib/
+│   ├── main.dart              # Application entry point
+│   │
+│   ├── auth/                  # Authentication
+│   │   ├── login/
+│   │   │   └── login.dart     # Login page
+│   │   └── signup/
+│   │       └── sign_up.dart   # Registration page
+│   │
+│   ├── Home/                  # Home module
+│   │   ├── Home.dart          # Main dashboard
+│   │   ├── task_creation.dart # Task creation cards
+│   │   ├── created_task.dart  # Active crops display
+│   │   ├── expected_event.dart # Upcoming tasks
+│   │   ├── cropdetailpage.dart # Crop details
+│   │   └── weeklydetailpage.dart # Weekly details
+│   │
+│   ├── Disease_page/          # Disease detection
+│   │   └── DiseaseDetection.dart
+│   │
+│   ├── geo_Location/          # Location services
+│   │   └── location.dart      # GPS & weather
+│   │
+│   ├── scheduling/            # Crop planning
+│   │   └── schedule.dart      # Week-by-week planner
+│   │
+│   ├── task_management/       # Task management
+│   │   ├── descrition.dart    # Agriculture intro page
+│   │   └── list_suggestion.dart # Crop suggestions
+│   │
+│   ├── features/              # Feature modules
+│   │   ├── ai_doctor/
+│   │   │   └── ai_crop_doctor_page.dart
+│   │   ├── yield_prediction/
+│   │   │   └── yield_prediction_page.dart
+│   │   ├── field_mapping/
+│   │   │   └── field_mapping_page.dart
+│   │   ├── market_prices/
+│   │   │   └── market_prices_page.dart
+│   │   ├── weather_advisor/
+│   │   │   └── weather_advisor_page.dart
+│   │   ├── farm_records/
+│   │   │   └── farm_records_page.dart
+│   │   ├── farm_profile/
+│   │   │   └── farm_profile_page.dart
+│   │   ├── knowledge_base/
+│   │   │   └── knowledge_base_page.dart
+│   │   └── privacy/
+│   │       └── privacy_page.dart
+│   │
+│   ├── core/                  # Core services
+│   │   ├── services/
+│   │   │   ├── connectivity_service.dart
+│   │   │   ├── connectivity_io.dart
+│   │   │   ├── connectivity_web.dart
+│   │   │   ├── connectivity_stub.dart
+│   │   │   ├── offline_storage.dart
+│   │   │   ├── ai_reliability.dart
+│   │   │   └── content_service.dart
+│   │   └── models/
+│   │       ├── farm_profile.dart
+│   │       ├── farm_record.dart
+│   │       ├── market_price.dart
+│   │       ├── knowledge_article.dart
+│   │       └── detection_history.dart
+│   │
+│   ├── settings/              # App settings
+│   │   ├── app_settings.dart
+│   │   ├── settings_page.dart
+│   │   ├── locale_store.dart
+│   │   ├── locale_store_io.dart
+│   │   ├── locale_store_web.dart
+│   │   └── locale_store_stub.dart
+│   │
+│   ├── l10n/                  # Localization
+│   │   ├── app_localizations.dart
+│   │   ├── fallback_localizations.dart
+│   │   ├── app_en.arb
+│   │   ├── app_am.arb
+│   │   └── app_om.arb
+│   │
+│   ├── stream/                # Auth state
+│   │   └── stream_provider.dart
+│   │
+│   ├── splash/                # Splash screen
+│   │   └── splash_screen.dart
+│   │
+│   ├── onboarding/            # Onboarding
+│   │   └── onboarding_page.dart
+│   │
+│   └── Loading/               # Loading states
+│       └── loading.dart
+│
+├── assets/                    # Static assets
+│   ├── image_1.jpg
+│   └── ...
+│
+├── .env                       # Environment variables
+├── pubspec.yaml              # Dependencies
+├── firestore.rules           # Firestore rules
+├── firebase.json             # Firebase config
+└── README.md                 # This file
+```
 
-Fix:
-- Ensure you are running from the Flutter project directory:
-  - `cd Smart_Gebere`
-- Then run:
+---
 
+## 🧩 Core Modules
+
+### 1. Authentication Module
+
+**Location:** `lib/auth/`
+
+Handles user authentication using Firebase Auth.
+
+```dart
+// Login
+await FirebaseAuth.instance.signInWithEmailAndPassword(
+  email: email,
+  password: password,
+);
+
+// Signup
+await FirebaseAuth.instance.createUserWithEmailAndPassword(
+  email: email,
+  password: password,
+);
+
+// Logout
+await FirebaseAuth.instance.signOut();
+```
+
+**Features:**
+- Email/password authentication
+- Password visibility toggle
+- Form validation
+- Error handling with user-friendly messages
+- Animated transitions
+
+### 2. Location Service
+
+**Location:** `lib/geo_Location/location.dart`
+
+Provides GPS coordinates, elevation, and weather data.
+
+```dart
+class LocationService {
+  // Get current location with all data
+  Future<Map<String, dynamic>> getCurrentLocation();
+  
+  // Get elevation for coordinates
+  Future<double> getElevation(double lat, double lon);
+  
+  // Get weather data
+  Future<Map<String, dynamic>> getWeather(double lat, double lon);
+  
+  // Generate AI crop suggestions
+  Future<List<Map<String, dynamic>>> generateCropSuggestions(
+    Map<String, dynamic> locationData, {
+    Map<String, dynamic>? fieldData,
+  });
+}
+```
+
+### 3. AI Integration
+
+**Multiple AI-powered features using Gemini:**
+
+```dart
+// Initialize model
+final model = GenerativeModel(
+  model: 'gemini-1.5-flash',
+  apiKey: apiKey,
+  safetySettings: [...],
+  systemInstruction: Content.text('...'),
+);
+
+// Text generation
+final response = await model.generateContent([Content.text(prompt)]);
+
+// Image analysis
+final response = await model.generateContent([
+  Content.multi([
+    TextPart(prompt),
+    DataPart('image/jpeg', imageBytes),
+  ])
+]);
+
+// Chat session
+final chatSession = model.startChat();
+final response = await chatSession.sendMessage(Content.text(message));
+```
+
+### 4. Offline Storage
+
+**Location:** `lib/core/services/offline_storage.dart`
+
+Local data persistence using Hive.
+
+```dart
+class OfflineStorage {
+  Future<void> init();
+  Future<void> saveCrops(List<Map<String, dynamic>> crops);
+  Future<List<Map<String, dynamic>>> getCrops();
+  Future<void> savePendingSync(Map<String, dynamic> data);
+  Future<List<Map<String, dynamic>>> getPendingSync();
+}
+```
+
+### 5. Connectivity Service
+
+**Location:** `lib/core/services/connectivity_service.dart`
+
+Cross-platform network status monitoring.
+
+```dart
+abstract class ConnectivityService {
+  Stream<bool> get onConnectivityChanged;
+  Future<bool> isConnected();
+}
+
+// Platform-specific implementations
+// - connectivity_io.dart (Mobile/Desktop)
+// - connectivity_web.dart (Web)
+```
+
+---
+
+## 📡 API Documentation
+
+### External APIs
+
+#### 1. Gemini AI API
+
+**Endpoint:** `https://generativelanguage.googleapis.com/v1beta/`
+
+**Authentication:** API Key
+
+**Models Used:**
+- `gemini-1.5-flash` (primary)
+- `gemini-2.5-flash` (preferred, with fallback)
+
+**Usage Examples:**
+
+```dart
+// Crop recommendations
+String prompt = """
+Based on the following location data, provide crop recommendations:
+- Latitude: ${lat}
+- Longitude: ${lon}
+- Elevation: ${elevation}m
+- Temperature: ${temp}°C
+...
+""";
+
+// Disease detection
+String prompt = """
+Analyze this plant image and provide:
+1. Plant identification
+2. Disease detection
+3. Treatment recommendations
+...
+""";
+```
+
+#### 2. OpenWeather API
+
+**Endpoint:** `https://api.openweathermap.org/data/2.5/weather`
+
+**Parameters:**
+- `lat` - Latitude
+- `lon` - Longitude
+- `appid` - API key
+- `units` - metric
+
+**Response:**
+```json
+{
+  "main": {
+    "temp": 25.5,
+    "humidity": 65
+  },
+  "weather": [{
+    "description": "scattered clouds"
+  }]
+}
+```
+
+#### 3. Open-Elevation API
+
+**Endpoint:** `https://api.open-elevation.com/api/v1/lookup`
+
+**Request:**
+```json
+{
+  "locations": [
+    {"latitude": 9.0, "longitude": 38.75}
+  ]
+}
+```
+
+**Response:**
+```json
+{
+  "results": [{
+    "elevation": 2355
+  }]
+}
+```
+
+---
+
+## 🗄️ Database Schema
+
+### Firestore Collections
+
+#### `Farmers/{userId}`
+
+```typescript
+interface Farmer {
+  // Profile
+  name?: string;
+  phone?: string;
+  region?: string;
+  
+  // Fields (mapped GPS fields)
+  fields?: Field[];
+  
+  // Crops (active crop plans)
+  crops?: Crop[];
+}
+
+interface Field {
+  id: string;
+  name: string;
+  soilType: string;
+  areaHectares: number;
+  points: {lat: number, lng: number}[];
+  createdAt: string;
+}
+
+interface Crop {
+  id: string;
+  name: string;
+  weeks: Week[];
+  progressPercentage: number;
+  daysSinceFirstPlanting: number;
+  createdAt: string;
+  fieldId?: string;
+  fieldName?: string;
+  fieldAreaHectares?: number;
+  soilType?: string;
+}
+
+interface Week {
+  week: number;
+  date_range: [string, string];
+  stage: string;
+  tasks: string[];
+  completedTasks?: number[];
+}
+```
+
+#### `users/{userId}`
+
+```typescript
+interface User {
+  email: string;
+  createdAt: Timestamp;
+  lastLogin: Timestamp;
+  settings?: UserSettings;
+}
+
+interface UserSettings {
+  language: string;
+  notifications: boolean;
+}
+```
+
+---
+
+## 🌐 Localization
+
+### Supported Languages
+
+| Language | Code | Status |
+|----------|------|--------|
+| English | `en` | ✅ Complete |
+| Amharic (አማርኛ) | `am` | ✅ Complete |
+| Afaan Oromo | `om` | ✅ Complete |
+
+### Implementation
+
+**Location:** `lib/l10n/`
+
+**Usage:**
+```dart
+final l10n = AppLocalizations.of(context);
+Text(l10n.welcomeMessage);
+Text(l10n.createTask);
+```
+
+**Adding New Strings:**
+
+1. Add to `app_en.arb`:
+```json
+{
+  "newString": "English text"
+}
+```
+
+2. Add to `app_am.arb`:
+```json
+{
+  "newString": "የአማርኛ ጽሑፍ"
+}
+```
+
+3. Add to `app_om.arb`:
+```json
+{
+  "newString": "Afaan Oromo text"
+}
+```
+
+4. Add to `AppLocalizations` class:
+```dart
+String get newString => _localizedValues[locale.languageCode]?['newString'] ?? 'Default';
+```
+
+### Changing Language
+
+```dart
+// In SettingsPage
+await settings.setLocale(Locale('am')); // Switch to Amharic
+```
+
+---
+
+## 🔒 Security
+
+### Authentication
+
+- Firebase Authentication with email/password
+- Secure token management
+- Session persistence
+
+### Data Protection
+
+- Firestore security rules enforce user-level access
+- No cross-user data access
+- API keys stored in `.env` (not committed)
+
+### Best Practices
+
+1. **API Keys:** Never commit `.env` files
+2. **User Data:** Encrypt sensitive local storage
+3. **Network:** All API calls over HTTPS
+4. **Validation:** Server-side validation in Firestore rules
+
+### Security Rules
+
+```javascript
+// Only authenticated users can access their own data
+match /Farmers/{userId} {
+  allow read, write: if request.auth != null 
+                     && request.auth.uid == userId;
+}
+```
+
+---
+
+## 🧪 Testing
+
+### Unit Tests
+
+```bash
+flutter test
+```
+
+### Integration Tests
+
+```bash
+flutter test integration_test/
+```
+
+### Widget Tests
+
+```dart
+testWidgets('Login button works', (tester) async {
+  await tester.pumpWidget(MyApp());
+  await tester.tap(find.text('Login'));
+  await tester.pump();
+  expect(find.text('Welcome'), findsOneWidget);
+});
+```
+
+---
+
+## 📦 Deployment
+
+### Android
+
+```bash
+# Generate release APK
+flutter build apk --release
+
+# Generate App Bundle
+flutter build appbundle --release
+```
+
+**Output:** `build/app/outputs/flutter-apk/app-release.apk`
+
+### iOS
+
+```bash
+flutter build ios --release
+```
+
+Then archive and upload via Xcode.
+
+### Web
+
+```bash
+flutter build web --release
+```
+
+**Output:** `build/web/`
+
+Deploy to Firebase Hosting:
+```bash
+firebase deploy --only hosting
+```
+
+---
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+#### 1. AssetManifest.json Error (Web)
+
+```
+Error: Unable to load asset: "AssetManifest.json"
+```
+
+**Solution:**
 ```bash
 flutter clean
 flutter pub get
 flutter run -d chrome
 ```
 
-Note:
-- This repo includes a compatibility fallback in `web/index.html` to avoid `$FLUTTER_BASE_HREF` issues on some Flutter toolchains.
+#### 2. Firestore Permission Denied
 
-### Error: `[cloud_firestore/permission-denied] Missing or insufficient permissions`
-Cause:
-- Your Firestore Security Rules are blocking the request (common when Firestore is in “locked” mode).
-
-Fix options:
-- **Temporary (development)**: set Firestore rules to allow authenticated users to read/write their own docs.
-  - This repo includes `firestore.rules` (see `Smart_Gebere/firestore.rules`).
-- Deploy rules using Firebase CLI:
-
-```bash
-firebase login
-firebase use gebere-44c39
-firebase deploy --only firestore:rules
+```
+Error: PERMISSION_DENIED
 ```
 
-If you don’t want to use CLI:
-- Open Firebase Console → Firestore Database → Rules → paste rules → Publish.
+**Solution:**
+1. Deploy Firestore rules: `firebase deploy --only firestore:rules`
+2. Verify user is authenticated
+3. Check collection path matches rules
 
-### Goals (what “done” looks like)
-- Stable login/signup experience
-- Consistent Firestore data model (profile + farmer + crops/tasks)
-- Reliable AI responses (robust parsing, safe failures, cached results)
-- Better privacy, security, and error handling
-- Offline-friendly UX for rural connectivity
-- Multi-language readiness (starting with Amharic)
+#### 3. Gemini API Model Not Found
 
-### Non-goals (explicitly out)
-- Push notifications (do not implement)
+```
+Error: model is not found
+```
 
----
+**Solution:**
+- Update `GEMINI_MODEL` in `.env` to `gemini-1.5-flash`
+- The app has automatic fallback to this model
 
-## 🧱 Repo Structure (high level)
-- `lib/auth/`: authentication UI (login/signup)
-- `lib/stream/`: wrapper that decides which screen to show based on Firebase session
-- `lib/geo_Location/`: location + weather helpers
-- `lib/task_management/`: crop suggestions + planting/task flows
-- `lib/Disease_page/`: image-based disease analysis
-- `lib/Home/`: home dashboard + created crops/tasks + progress UI
+#### 4. Location Permission Denied
 
----
+**Solution:**
+- Android: Check `AndroidManifest.xml` permissions
+- iOS: Check `Info.plist` usage descriptions
+- Request permission in app before accessing location
 
-## 🔐 Environment Variables & Keys
-This project uses `.env` via `flutter_dotenv`. Create a `.env` file in the project root (`Smart_Gebere/.env`) and keep it out of git.
+#### 5. MissingPluginException on Web
 
-### Required keys (current code usage)
-- `API_KEY`: Google Gemini key (used for crop suggestions + disease detection)
-- `OPENWEATHER_API_KEY`: OpenWeather key (used in `lib/geo_Location/location.dart`)
-- `apiKeyW`: referenced by `lib/geo_Location/wetherdata.dart` (Open-Meteo currently doesn’t require it—see checklist to fix)
+```
+MissingPluginException: No implementation found
+```
 
-### Checklist recommendation
-Standardize naming to avoid setup failures:
-- Prefer **UPPER_SNAKE_CASE** keys only.
-- Remove unused keys (Open-Meteo does not require `apikey` in most cases).
+**Solution:**
+- For `shared_preferences`: App uses cross-platform `LocaleStore`
+- For `connectivity_plus`: App uses platform-specific implementations
+- Ensure `flutter pub get` and full restart
 
 ---
 
-## 🔥 Firebase Setup
-### Firebase Authentication
-Used for email/password auth.
+## 🗺️ Roadmap
 
-### Firestore
-Used for user profile + farmer/crop/task data.
+### Phase 1: Core Features ✅
 
-> Tip: keep all reads/writes consistent in collection names to avoid “empty UI” bugs.
+- [x] User authentication
+- [x] GPS-based crop recommendations
+- [x] Disease detection
+- [x] Crop planning/scheduling
+- [x] Multi-language support
 
----
+### Phase 2: Advanced Features ✅
 
-## 🗃️ Data Model (Recommended)
-Today the code writes user signup data to `user_data/{uid}` but reads crop/task data from `Farmers/{uid}`.
-This mismatch is a major source of bugs and confusion.
+- [x] AI Crop Doctor chat
+- [x] Yield prediction
+- [x] GPS field mapping
+- [x] Task completion tracking
+- [x] Progress calculation
 
-### Recommended collections
-- `users/{uid}`
-  - `firstName`, `lastName`, `email`, `phone`, `country`, `createdAt`
-  - optional: `language`, `region`, `woreda`, `farmSizeHa`, `irrigationType`
-- `farmers/{uid}`
-  - `crops`: array or subcollection (prefer subcollection for scale)
+### Phase 3: Enhancement (In Progress)
 
-### Recommended crop structure (subcollection approach)
-- `farmers/{uid}/crops/{cropId}`
-  - `name`, `createdAt`, `startDate`, `progress`, etc.
-- `farmers/{uid}/crops/{cropId}/weeks/{weekId}`
-  - `dateRange`, `tasks`
+- [ ] Push notifications
+- [ ] Offline-first mode
+- [ ] Voice input for chat
+- [ ] Community forums
+- [ ] Expert consultation
 
-> If you keep arrays (`crops` array inside a single doc), be careful with Firestore document size limits and update conflicts.
+### Phase 4: Future
 
----
-
-## 🧯 Security & Privacy Baseline
-### Key risks to address
-- Disease detection uploads plant images to an external AI provider → require consent + clear privacy text.
-- Crop suggestions use location + weather → ensure users understand what is collected and why.
-
-### Minimum actions
-- Add a simple “Privacy & Consent” screen before disease upload.
-- Don’t log secrets or tokens.
-- Add Firestore Security Rules (only authenticated users can read/write their own docs).
+- [ ] IoT sensor integration
+- [ ] Drone imagery support
+- [ ] Marketplace integration
+- [ ] Government scheme information
+- [ ] Insurance integration
 
 ---
 
-## 🧠 AI Reliability Guideline (Gemini)
-Current flows assume Gemini returns perfect JSON. In practice, models sometimes add text or formatting.
+## 🤝 Contributing
 
-### Recommended approach
-- Put a strict “JSON only” instruction (already present in prompts)
-- Add a “repair” step if JSON parsing fails (strip code fences, try to locate the first `[` and last `]`)
-- Add graceful fallback UI: “Couldn’t generate suggestions—try again” + allow manual retry
-- Cache responses in Firestore so users don’t pay latency/cost repeatedly
+### Getting Started
 
----
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -m 'Add amazing feature'`
+4. Push to branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
 
-## 🌍 Offline-Friendly Guideline (No notifications)
-Offline-first matters for rural areas:
-- Cache last successful results (crop list, disease analysis, weather)
-- Use local storage (e.g., `shared_preferences` or `hive`) for last-known UI state
-- Provide clear “Offline” banners and retry buttons
+### Code Style
 
----
+- Follow [Dart style guide](https://dart.dev/guides/language/effective-dart/style)
+- Use meaningful variable names
+- Add comments for complex logic
+- Write tests for new features
 
-## 🌐 Localization Guideline (Amharic-first)
-- Use Flutter `intl` and localization files (`arb`).
-- Start with core UI strings for login/signup/home.
-- Provide language selector in profile settings (optional).
+### Commit Messages
 
----
-
-## 🧪 Testing & Quality
-- Add unit tests for parsing AI JSON.
-- Add widget tests for signup/login validation.
-- Add basic integration test for auth flow (optional).
+```
+feat: add yield prediction feature
+fix: resolve login error on iOS
+docs: update API documentation
+style: format code with dartfmt
+refactor: simplify location service
+test: add unit tests for auth
+```
 
 ---
 
-## ✅ Master Checklist (Roadmap)
-Use this list to prevent repetitive work. Check items as you complete them.
+## 📄 License
 
-### Phase 0 — Project hygiene
-- [ ] Create `Smart_Gebere/.env.example` (document required keys; no secrets)
-- [ ] Standardize API key names (remove `apiKeyW` usage or rename)
-- [ ] Add clear error messages instead of silent `catch {}` blocks
-- [ ] Add a simple “About / Version” screen (helps support/debug)
-
-### Phase 1 — Authentication correctness (high priority)
-- [ ] Fix “Logout” to actually call Firebase `signOut()` (not only navigation)
-- [ ] Add “Forgot Password” flow
-- [ ] Improve login field labeling (it says “Username” but uses email)
-- [ ] Add stronger password rules + better validation messages
-- [ ] Ensure signup always sets `country = Ethiopia` (DONE)
-
-### Phase 2 — Firestore data model consistency (high priority)
-- [ ] Decide the canonical user profile doc (`users/{uid}` recommended)
-- [ ] Migrate signup writes from `user_data/{uid}` → `users/{uid}` (or align readers to `user_data`)
-- [ ] Decide canonical farmer/crop storage (`farmers/{uid}` / `crops`)
-- [ ] Ensure Home reads and writes the same collections used by creation flows
-- [ ] Add Firestore Security Rules (users can only access their own docs)
-
-### Phase 3 — Crop recommendations (AI + location)
-- [ ] Add location permission UX (explain why location is needed)
-- [ ] Add retry + fallback when weather/elevation fails
-- [ ] Harden Gemini response parsing (handle non-JSON output safely)
-- [ ] Cache crop suggestions per day/location snapshot (Firestore or local cache)
-- [ ] Add “Why this crop?” explanation UI (already partially present in `details`)
-
-### Phase 4 — Disease detection (AI + privacy)
-- [ ] Add privacy/consent confirmation before uploading images
-- [ ] Add image compression before upload (reduce bandwidth)
-- [ ] Add “low confidence / poor image quality” UI state
-- [ ] Cache last result locally for offline view
-
-### Phase 5 — Weather improvements
-- [ ] Remove unused `apikey` query param for Open-Meteo (or document why it’s needed)
-- [ ] Add weather error state UI (not only exceptions)
-- [ ] Add “choose location manually” fallback if GPS fails
-
-### Phase 6 — UX/product enhancements (no notifications)
-- [ ] Offline mode (cache last known screens/data)
-- [ ] Localization (Amharic + Afaan Oromo as next)
-- [ ] Market prices feature (manual entry + trend view + region filter)
-- [ ] Farmer profile setup (region/woreda/farm size/irrigation type)
-- [ ] Export/share plan as PDF (optional)
-
-### Phase 7 — Release readiness
-- [ ] Add Terms/Privacy pages
-- [ ] Add analytics (privacy-friendly) and crash reporting (optional)
-- [ ] App icon, splash screen, store listing assets
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🌍 How It Works  
+## 👥 Team
 
-1. **Crop Recommendations** 🌽  
-   - We analyze your farm’s location 🌏 and inputs 📋 using our ML model to suggest the best crops.  
+**Smart Gebere Development Team**
 
-2. **Disease Detection** 🧬  
-   - Our image recognition AI identifies plant diseases 🦠 and provides treatments.  
+- Project Lead
+- Flutter Developers
+- UI/UX Designers
+- AI/ML Engineers
+- QA Engineers
 
-3. **Weather Forecasting** 🌦️  
-   - Stay ahead with precise weather updates tailored to your area.  
+---
 
-## 📸 Screenshots  
+## 📞 Support
 
-<div align="center">  
-  <img src="photo_7_2025-02-11_21-45-30.jpg" alt="Crop Recommendation" width="65%">  
-  <p><i>🌽 Crop Recommendation - Personalized for Your Farm</i></p>  
-</div>  
+For support, please:
 
-<div align="center">  
-  <img src="photo_1_2025-02-11_21-45-30.jpg" alt="Disease Detection" width="65%">  
-  <p><i>🦠 Disease Detection - AI-powered Analysis</i></p>  
-</div>  
+1. Check the [Troubleshooting](#-troubleshooting) section
+2. Search existing [Issues](https://github.com/your-org/smart-gebere/issues)
+3. Create a new issue with:
+   - Device/platform information
+   - Steps to reproduce
+   - Expected vs actual behavior
+   - Screenshots if applicable
 
-## ✨ Future Plans  
+---
 
-🚀 Add **multilingual support** for a wider audience.  
-📉 Track **local market prices** for better sales planning.  
-📴 Enable **offline mode** for remote areas.  
+## 🙏 Acknowledgments
 
-## 🌱 Contributing  
+- [Flutter Team](https://flutter.dev/) for the amazing framework
+- [Firebase](https://firebase.google.com/) for backend services
+- [Google AI](https://ai.google.dev/) for Gemini AI capabilities
+- [OpenWeather](https://openweathermap.org/) for weather data
+- Ethiopian farming community for domain expertise
 
-Want to help us grow? 🌾 Fork the repo, create a feature branch, and submit a pull request!  
+---
 
-## 📜 License  
+<div align="center">
 
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.  
+**Made with ❤️ for Ethiopian Farmers**
 
-## 🌟 Let’s Empower Farmers Together! 🌟  
+🌾 Smart Gebere - ስማርት ገበሬ 🌾
 
-Thank you for being part of this journey. Together, we can help farmers grow more, earn more, and live better. 💚  
+</div>
