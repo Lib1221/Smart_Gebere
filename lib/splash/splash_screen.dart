@@ -127,7 +127,7 @@ class _SplashScreenState extends State<SplashScreen>
       destination = const LoginPage();
     }
 
-    // Navigate with fade transition
+   
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         pageBuilder: (_, __, ___) => destination,
