@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:smart_gebere/Home/Home.dart';
-import 'package:smart_gebere/onboarding/onboarding_page.dart';
-import 'package:smart_gebere/auth/login/login.dart';
-import 'package:smart_gebere/core/services/offline_storage.dart';
+import 'package:flutter/material.dart'; // Core Flutter UI package
+import 'package:google_fonts/google_fonts.dart'; // Custom Google Fonts support
+import 'package:firebase_auth/firebase_auth.dart'; // Firebase authentication
+import 'package:smart_gebere/Home/Home.dart'; // Home screen
+import 'package:smart_gebere/onboarding/onboarding_page.dart'; // Onboarding screen
+import 'package:smart_gebere/auth/login/login.dart'; // Login screen
+import 'package:smart_gebere/core/services/offline_storage.dart'; // Local storage service
 
+// Splash screen widget
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -13,31 +14,39 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+// State class with animation support
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
+
+  // Animation controllers
   late AnimationController _logoController;
   late AnimationController _textController;
   late AnimationController _progressController;
   
-  late Animation<double> _logoScale;
-  late Animation<double> _logoRotation;
-  late Animation<double> _textOpacity;
-  late Animation<Offset> _textSlide;
-  late Animation<double> _progressValue;
+  // Animations
+  late Animation<double> _logoScale;      // Logo scaling animation
+  late Animation<double> _logoRotation;   // Logo rotation animation
+  late Animation<double> _textOpacity;    // Text fade animation
+  late Animation<Offset> _textSlide;      // Text slide animation
+  late Animation<double> _progressValue;  // Progress bar animation
 
   @override
   void initState() {
     super.initState();
-    _initAnimations();
-    _navigateAfterDelay();
+    _initAnimations();       // Initialize all animations
+    _navigateAfterDelay();   // Navigate after splash delay
   }
 
+  // Initialize animation controllers and animations
   void _initAnimations() {
-    // Logo animation
+
+    // Logo animation controller
     _logoController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
     );
     
+    // Logo scale animation
     _logoScale = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _logoController,
@@ -45,6 +54,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       ),
     );
     
+    // Logo rotation animation
     _logoRotation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _logoController,
@@ -52,51 +62,63 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       ),
     );
 
-    // Text animation
+    // Text animation controller
     _textController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
     
+    // Text opacity animation
     _textOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _textController, curve: Curves.easeIn),
     );
     
+    // Text slide animation
     _textSlide = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeOut));
+    ).animate(
+      CurvedAnimation(parent: _textController, curve: Curves.easeOut),
+    );
 
-    // Progress animation
+    // Progress bar animation controller
     _progressController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
     );
     
+    // Progress value animation
     _progressValue = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _progressController, curve: Curves.easeInOut),
     );
 
-    // Start animations
+    // Start logo animation
     _logoController.forward();
+
+    // Start text and progress animations after delay
     Future.delayed(const Duration(milliseconds: 500), () {
       _textController.forward();
       _progressController.forward();
     });
   }
 
+  // Handle navigation after splash screen delay
   Future<void> _navigateAfterDelay() async {
     await Future.delayed(const Duration(milliseconds: 3000));
     
+    // Prevent navigation if widget is disposed
     if (!mounted) return;
 
-    // Check if user has completed onboarding
-    final onboardingCompleted = OfflineStorage.getUserPref<bool>('onboarding_completed') ?? false;
+    // Check if onboarding was completed
+    final onboardingCompleted =
+        OfflineStorage.getUserPref<bool>('onboarding_completed') ?? false;
     
     // Check if user is logged in
     final user = FirebaseAuth.instance.currentUser;
 
     Widget destination;
+
+    // Decide destination screen
     if (user != null) {
       destination = const Home_Screen();
     } else if (!onboardingCompleted) {
@@ -105,6 +127,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       destination = const LoginPage();
     }
 
+    // Navigate with fade transition
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         pageBuilder: (_, __, ___) => destination,
@@ -121,6 +144,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
   @override
   void dispose() {
+    // Dispose animation controllers to free memory
     _logoController.dispose();
     _textController.dispose();
     _progressController.dispose();
@@ -133,6 +157,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       body: Container(
         width: double.infinity,
         height: double.infinity,
+
+        // Background gradient
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -144,12 +170,13 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
             ],
           ),
         ),
+
         child: SafeArea(
           child: Column(
             children: [
               const Spacer(flex: 2),
-              
-              // Animated Logo
+
+              // Animated logo
               AnimatedBuilder(
                 animation: _logoController,
                 builder: (context, child) {
@@ -178,12 +205,13 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      // Leaf/Plant icon
+                      // Leaf icon
                       const Icon(
                         Icons.eco,
                         size: 70,
                         color: Color(0xFF2E7D32),
                       ),
+
                       // Shine effect
                       Positioned(
                         top: 20,
@@ -201,10 +229,10 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 40),
-              
-              // App Name
+
+              // App name and tagline
               SlideTransition(
                 position: _textSlide,
                 child: FadeTransition(
@@ -222,7 +250,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                       ),
                       const SizedBox(height: 12),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 8),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(20),
@@ -240,10 +269,10 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   ),
                 ),
               ),
-              
+
               const Spacer(flex: 2),
-              
-              // Loading indicator
+
+              // Loading progress indicator
               AnimatedBuilder(
                 animation: _progressController,
                 builder: (context, child) {
@@ -255,13 +284,17 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                           borderRadius: BorderRadius.circular(10),
                           child: LinearProgressIndicator(
                             value: _progressValue.value,
-                            backgroundColor: Colors.white.withOpacity(0.2),
-                            valueColor: const AlwaysStoppedAnimation(Colors.white),
+                            backgroundColor:
+                                Colors.white.withOpacity(0.2),
+                            valueColor:
+                                const AlwaysStoppedAnimation(Colors.white),
                             minHeight: 6,
                           ),
                         ),
                       ),
                       const SizedBox(height: 16),
+
+                      // Loading status text
                       Text(
                         _getLoadingText(_progressValue.value),
                         style: GoogleFonts.poppins(
@@ -273,10 +306,10 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   );
                 },
               ),
-              
+
               const SizedBox(height: 40),
-              
-              // Version
+
+              // App version
               Text(
                 'Version 1.0.0',
                 style: GoogleFonts.poppins(
@@ -284,7 +317,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   color: Colors.white.withOpacity(0.5),
                 ),
               ),
-              
+
               const SizedBox(height: 20),
             ],
           ),
@@ -293,6 +326,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     );
   }
 
+  // Returns loading text based on progress value
   String _getLoadingText(double progress) {
     if (progress < 0.3) return 'Initializing...';
     if (progress < 0.6) return 'Loading resources...';
@@ -300,4 +334,3 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     return 'Welcome!';
   }
 }
-
