@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart'; // Core Flutter UI package
 import 'package:google_fonts/google_fonts.dart'; // Custom Google Fonts support
 import 'package:firebase_auth/firebase_auth.dart'; // Firebase authentication
-import 'package:smart_gebere/Home/Home.dart'; // Home screen
+import 'package:smart_gebere/Home/Home.dart'; // 
 import 'package:smart_gebere/onboarding/onboarding_page.dart'; // Onboarding screen
 import 'package:smart_gebere/auth/login/login.dart'; // Login screen
 import 'package:smart_gebere/core/services/offline_storage.dart'; // Local storage service
