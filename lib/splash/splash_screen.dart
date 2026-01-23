@@ -118,7 +118,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     Widget destination;
 
-    
+    // Decide destination screen
     if (user != null) {
       destination = const Home_Screen();
     } else if (!onboardingCompleted) {
