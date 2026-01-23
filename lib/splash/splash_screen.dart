@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart'; // Core Flutter UI package
+import 'package:flutter/material.dart'; 
 import 'package:google_fonts/google_fonts.dart'; // Custom Google Fonts support
 import 'package:firebase_auth/firebase_auth.dart'; // Firebase authentication
 import 'package:smart_gebere/Home/Home.dart'; // Home screen
