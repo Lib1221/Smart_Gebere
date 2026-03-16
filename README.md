@@ -1216,6 +1216,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Smart Gebere Development Team**
 
 - Project Lead
+- Project Manager
 - Flutter Developers
 - UI/UX Designers
 - AI/ML Engineers
