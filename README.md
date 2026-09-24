@@ -1254,3 +1254,11 @@ For support, please:
 🌾 Smart Gebere - ስማርት ገበሬ 🌾
 
 </div>
+
+## Documentation
+
+Developer docs live in [`docs/`](docs/):
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Setup](docs/SETUP.md)
+- [Contributing](CONTRIBUTING.md)
